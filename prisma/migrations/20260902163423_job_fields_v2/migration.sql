@@ -11,10 +11,11 @@ CREATE TABLE "User" (
 -- CreateTable
 CREATE TABLE "Job" (
     "id" TEXT NOT NULL PRIMARY KEY,
-    "jobNumber" TEXT,
-    "title" TEXT NOT NULL,
+    "jobNumber" TEXT NOT NULL,
+    "scopeOfWork" TEXT NOT NULL,
     "customerName" TEXT NOT NULL,
-    "address" TEXT,
+    "customerContact" TEXT NOT NULL,
+    "location" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'OPEN',
     "notes" TEXT,
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,

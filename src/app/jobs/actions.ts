@@ -21,22 +21,27 @@ export async function createJob(
 ): Promise<FormState> {
   const user = await requireUser();
 
-  const title = String(formData.get("title") ?? "").trim();
-  const customerName = String(formData.get("customerName") ?? "").trim();
   const jobNumber = String(formData.get("jobNumber") ?? "").trim();
-  const address = String(formData.get("address") ?? "").trim();
+  const scopeOfWork = String(formData.get("scopeOfWork") ?? "").trim();
+  const customerName = String(formData.get("customerName") ?? "").trim();
+  const customerContact = String(formData.get("customerContact") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
 
-  if (!title || !customerName) {
-    return { error: "Job title and customer name are required." };
+  if (!jobNumber || !scopeOfWork || !customerName || !customerContact || !location) {
+    return {
+      error:
+        "Job number, scope of work, customer name, customer contact, and location are required.",
+    };
   }
 
   const job = await prisma.job.create({
     data: {
-      title,
+      jobNumber,
+      scopeOfWork,
       customerName,
-      jobNumber: jobNumber || null,
-      address: address || null,
+      customerContact,
+      location,
       notes: notes || null,
       createdById: user.id,
     },
@@ -44,6 +49,45 @@ export async function createJob(
 
   revalidatePath("/");
   redirect(`/jobs/${job.id}`);
+}
+
+export async function updateJobDetails(
+  jobId: string,
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  await requireUser();
+
+  const jobNumber = String(formData.get("jobNumber") ?? "").trim();
+  const scopeOfWork = String(formData.get("scopeOfWork") ?? "").trim();
+  const customerName = String(formData.get("customerName") ?? "").trim();
+  const customerContact = String(formData.get("customerContact") ?? "").trim();
+  const location = String(formData.get("location") ?? "").trim();
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  if (!jobNumber || !scopeOfWork || !customerName || !customerContact || !location) {
+    return {
+      error:
+        "Job number, scope of work, customer name, customer contact, and location are required.",
+    };
+  }
+
+  await prisma.job.update({
+    where: { id: jobId },
+    data: {
+      jobNumber,
+      scopeOfWork,
+      customerName,
+      customerContact,
+      location,
+      notes: notes || null,
+    },
+  });
+
+  revalidatePath(`/jobs/${jobId}`);
+  revalidatePath("/");
+  revalidatePath("/assignments/in-progress");
+  return { success: true };
 }
 
 export async function updateJobStatus(jobId: string, status: string) {

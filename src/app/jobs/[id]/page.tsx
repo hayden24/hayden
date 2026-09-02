@@ -7,6 +7,7 @@ import DeleteButton from "@/components/delete-button";
 import StatusSelect from "./status-select";
 import AddLaborForm from "./add-labor-form";
 import AddMaterialForm from "./add-material-form";
+import JobDetails from "./job-details";
 
 const backLinkByStatus: Record<string, { href: string; label: string }> = {
   OPEN: { href: "/", label: "Open assignments" },
@@ -64,24 +65,21 @@ export default async function JobPage({
       </Link>
 
       <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-xl font-semibold text-slate-900">
-            {job.title}
-            {job.jobNumber ? (
-              <span className="ml-2 text-sm font-normal text-slate-400">#{job.jobNumber}</span>
-            ) : null}
-          </h1>
-          <p className="text-sm text-slate-500">{job.customerName}</p>
-          {job.address && <p className="text-sm text-slate-500">{job.address}</p>}
+        <div className="min-w-0 flex-1">
+          <JobDetails
+            job={{
+              id: job.id,
+              jobNumber: job.jobNumber,
+              scopeOfWork: job.scopeOfWork,
+              location: job.location,
+              customerName: job.customerName,
+              customerContact: job.customerContact,
+              notes: job.notes,
+            }}
+          />
         </div>
         <StatusSelect jobId={job.id} status={job.status} />
       </div>
-
-      {job.notes && (
-        <p className="mt-3 whitespace-pre-wrap rounded-md bg-white p-3 text-sm text-slate-600 border border-slate-200">
-          {job.notes}
-        </p>
-      )}
 
       <div className="mt-4 flex gap-6 text-sm text-slate-500">
         <span>

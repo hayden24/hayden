@@ -36,10 +36,11 @@ model User {
 
 model Job {
   id              String          @id @default(cuid())
-  jobNumber       String?
-  title           String
+  jobNumber       String
+  scopeOfWork     String
   customerName    String
-  address         String?
+  customerContact String
+  location        String
   status          JobStatus       @default(OPEN)
   notes           String?
   createdAt       DateTime        @default(now())

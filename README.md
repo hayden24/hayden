@@ -1,16 +1,21 @@
 # Job Tracker
 
-A mobile-friendly web app for tracking electrical service jobs. Each job has a
-**Labor** folder for logging hours and a **Material** folder for logging
-materials used, with support for multiple user accounts.
+A mobile-friendly web app for tracking electrical service jobs. Each job
+(work order) has a **Labor** folder for logging hours and a **Material**
+folder for logging materials used, with support for multiple user accounts.
 
 ## Features
 
 - Email/password accounts (register as a regular user or an office/admin user)
-- Job list with status (Open, In progress, Complete, On hold)
+- **Open assignments** home screen, plus a menu (top right) for **Projects in
+  progress**, **Timekeeping**, and **New work order**
+- Each job/work order tracks: Job number, Location, Scope of work, Customer
+  name, Customer contact, and Job status (Open, In progress, Complete, On
+  hold) — click into a job to edit any of these fields
 - Per-job Labor tab: log date, hours, and a description; running total of hours
 - Per-job Material tab: log description, quantity, and optional unit cost;
   running total material cost
+- Timekeeping screen: every hour you've logged, across all jobs, in one list
 - Admins can delete jobs; any user can delete their own labor/material entries
 
 ## Getting started
@@ -34,7 +39,17 @@ materials used, with support for multiple user accounts.
    npx prisma migrate deploy
    ```
 
-4. Run the dev server:
+4. Optional: seed a few pretend jobs to see the app populated:
+
+   ```bash
+   npx prisma db seed
+   ```
+
+   This creates a demo account (`demo@jobtracker.local` / `demo1234`) that
+   owns the sample jobs — any account you register can see them too, since
+   the job list isn't scoped per-user.
+
+5. Run the dev server:
 
    ```bash
    npm run dev

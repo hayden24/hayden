@@ -17,7 +17,7 @@ export default async function TimekeepingPage() {
   const entries = await prisma.laborEntry.findMany({
     where: { userId: session.user.id },
     orderBy: { date: "desc" },
-    include: { job: { select: { id: true, title: true, jobNumber: true } } },
+    include: { job: { select: { id: true, scopeOfWork: true, jobNumber: true } } },
   });
 
   const totalHours = entries.reduce((sum, e) => sum + e.hours, 0);
@@ -43,8 +43,7 @@ export default async function TimekeepingPage() {
                 </p>
                 <p className="text-xs text-slate-500">
                   <Link href={`/jobs/${entry.job.id}?tab=labor`} className="text-blue-600 hover:underline">
-                    {entry.job.title}
-                    {entry.job.jobNumber ? ` #${entry.job.jobNumber}` : ""}
+                    {entry.job.scopeOfWork} #{entry.job.jobNumber}
                   </Link>
                   {entry.description ? ` — ${entry.description}` : ""}
                 </p>

@@ -12,10 +12,35 @@ export default function NewJobForm() {
   return (
     <form action={formAction} className="mt-4 space-y-4 rounded-lg border border-slate-200 bg-white p-4">
       <div>
-        <label htmlFor="title" className="block text-sm font-medium text-slate-700">
-          Job title *
+        <label htmlFor="jobNumber" className="block text-sm font-medium text-slate-700">
+          Job number *
         </label>
-        <input id="title" name="title" required className={inputClass} placeholder="Panel upgrade" />
+        <input id="jobNumber" name="jobNumber" required className={inputClass} placeholder="J-1001" />
+      </div>
+      <div>
+        <label htmlFor="scopeOfWork" className="block text-sm font-medium text-slate-700">
+          Scope of work *
+        </label>
+        <textarea
+          id="scopeOfWork"
+          name="scopeOfWork"
+          required
+          rows={2}
+          className={inputClass}
+          placeholder="Replace 200A panel and add two new circuits"
+        />
+      </div>
+      <div>
+        <label htmlFor="location" className="block text-sm font-medium text-slate-700">
+          Location *
+        </label>
+        <input
+          id="location"
+          name="location"
+          required
+          className={inputClass}
+          placeholder="123 Main St, Springfield"
+        />
       </div>
       <div>
         <label htmlFor="customerName" className="block text-sm font-medium text-slate-700">
@@ -24,16 +49,16 @@ export default function NewJobForm() {
         <input id="customerName" name="customerName" required className={inputClass} />
       </div>
       <div>
-        <label htmlFor="jobNumber" className="block text-sm font-medium text-slate-700">
-          Job number
+        <label htmlFor="customerContact" className="block text-sm font-medium text-slate-700">
+          Customer contact *
         </label>
-        <input id="jobNumber" name="jobNumber" className={inputClass} />
-      </div>
-      <div>
-        <label htmlFor="address" className="block text-sm font-medium text-slate-700">
-          Job site address
-        </label>
-        <input id="address" name="address" className={inputClass} />
+        <input
+          id="customerContact"
+          name="customerContact"
+          required
+          className={inputClass}
+          placeholder="Name and phone number"
+        />
       </div>
       <div>
         <label htmlFor="notes" className="block text-sm font-medium text-slate-700">

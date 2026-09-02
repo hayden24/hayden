@@ -46,23 +46,26 @@ export default function JobList({
               className="block rounded-lg border border-slate-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm"
             >
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="font-medium text-slate-900">
-                    {job.title}
-                    {job.jobNumber ? (
-                      <span className="ml-2 text-xs font-normal text-slate-400">
-                        #{job.jobNumber}
-                      </span>
-                    ) : null}
-                  </p>
-                  <p className="text-sm text-slate-500">{job.customerName}</p>
-                </div>
+                <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                  Job #{job.jobNumber}
+                </p>
                 <span
                   className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${statusStyles[job.status]}`}
                 >
                   {statusLabels[job.status]}
                 </span>
               </div>
+              <p className="mt-1 font-medium text-slate-900">{job.scopeOfWork}</p>
+              <dl className="mt-2 space-y-0.5 text-sm text-slate-500">
+                <div>
+                  <dt className="inline font-medium text-slate-600">Location: </dt>
+                  <dd className="inline">{job.location}</dd>
+                </div>
+                <div>
+                  <dt className="inline font-medium text-slate-600">Customer contact: </dt>
+                  <dd className="inline">{job.customerContact}</dd>
+                </div>
+              </dl>
               <div className="mt-3 flex gap-4 text-xs text-slate-500">
                 <span>{totalHours.toFixed(1)} labor hrs</span>
                 <span>
