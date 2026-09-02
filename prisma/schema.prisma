@@ -32,6 +32,7 @@ model User {
   jobsCreated     Job[]           @relation("JobCreatedBy")
   laborEntries    LaborEntry[]
   materialEntries MaterialEntry[]
+  purchaseOrders  PurchaseOrder[]
 }
 
 model Job {
@@ -49,6 +50,7 @@ model Job {
   createdById     String
   laborEntries    LaborEntry[]
   materialEntries MaterialEntry[]
+  purchaseOrders  PurchaseOrder[]
 }
 
 model LaborEntry {
@@ -73,5 +75,19 @@ model MaterialEntry {
   description String
   quantity    Float    @default(1)
   unitCost    Float?
+  createdAt   DateTime @default(now())
+}
+
+model PurchaseOrder {
+  id          String   @id @default(cuid())
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId       String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  poNumber    String
+  vendor      String
+  description String?
+  amount      Float?
+  date        DateTime @default(now())
   createdAt   DateTime @default(now())
 }

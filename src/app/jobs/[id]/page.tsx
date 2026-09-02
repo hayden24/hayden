@@ -2,17 +2,28 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { deleteLaborEntry, deleteMaterialEntry, deleteJob } from "../actions";
+import { deleteLaborEntry, deleteMaterialEntry, deletePurchaseOrder, deleteJob } from "../actions";
 import DeleteButton from "@/components/delete-button";
 import StatusSelect from "./status-select";
 import AddLaborForm from "./add-labor-form";
 import AddMaterialForm from "./add-material-form";
+import AddPurchaseOrderForm from "./add-purchase-order-form";
+import NotesForm from "./notes-form";
 import JobDetails from "./job-details";
 
 const backLinkByStatus: Record<string, { href: string; label: string }> = {
   OPEN: { href: "/", label: "Open assignments" },
   IN_PROGRESS: { href: "/assignments/in-progress", label: "Projects in progress" },
 };
+
+const TABS = [
+  { key: "labor", label: "Labor" },
+  { key: "purchase", label: "Purchase order" },
+  { key: "material", label: "Material" },
+  { key: "notes", label: "Notes" },
+] as const;
+
+type TabKey = (typeof TABS)[number]["key"];
 
 function formatDate(date: Date) {
   return new Date(date).toLocaleDateString(undefined, {
@@ -31,7 +42,7 @@ export default async function JobPage({
 }) {
   const { id } = await params;
   const { tab } = await searchParams;
-  const activeTab = tab === "material" ? "material" : "labor";
+  const activeTab: TabKey = TABS.some((t) => t.key === tab) ? (tab as TabKey) : "labor";
 
   const [job, session] = await Promise.all([
     prisma.job.findUnique({
@@ -40,6 +51,10 @@ export default async function JobPage({
         createdBy: { select: { name: true } },
         laborEntries: { include: { user: { select: { name: true } } }, orderBy: { date: "desc" } },
         materialEntries: {
+          include: { user: { select: { name: true } } },
+          orderBy: { date: "desc" },
+        },
+        purchaseOrders: {
           include: { user: { select: { name: true } } },
           orderBy: { date: "desc" },
         },
@@ -55,6 +70,7 @@ export default async function JobPage({
     (sum, e) => sum + e.quantity * (e.unitCost ?? 0),
     0
   );
+  const totalPOAmount = job.purchaseOrders.reduce((sum, e) => sum + (e.amount ?? 0), 0);
   const isAdmin = session?.user?.role === "ADMIN";
   const backLink = backLinkByStatus[job.status] ?? backLinkByStatus.OPEN;
 
@@ -74,49 +90,44 @@ export default async function JobPage({
               location: job.location,
               customerName: job.customerName,
               customerContact: job.customerContact,
-              notes: job.notes,
             }}
           />
         </div>
         <StatusSelect jobId={job.id} status={job.status} />
       </div>
 
-      <div className="mt-4 flex gap-6 text-sm text-slate-500">
+      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-500">
         <span>
           <strong className="text-slate-900">{totalHours.toFixed(1)}</strong> labor hrs
         </span>
         <span>
           <strong className="text-slate-900">${totalMaterialCost.toFixed(2)}</strong> materials
         </span>
+        <span>
+          <strong className="text-slate-900">${totalPOAmount.toFixed(2)}</strong> purchase orders
+        </span>
         <span>Created by {job.createdBy.name}</span>
       </div>
 
       <div className="mt-6 border-b border-slate-200">
-        <nav className="-mb-px flex gap-6">
-          <Link
-            href={`/jobs/${job.id}?tab=labor`}
-            className={`border-b-2 px-1 py-3 text-sm font-medium ${
-              activeTab === "labor"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            Labor
-          </Link>
-          <Link
-            href={`/jobs/${job.id}?tab=material`}
-            className={`border-b-2 px-1 py-3 text-sm font-medium ${
-              activeTab === "material"
-                ? "border-blue-600 text-blue-600"
-                : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            Material
-          </Link>
+        <nav className="-mb-px flex gap-6 overflow-x-auto">
+          {TABS.map((t) => (
+            <Link
+              key={t.key}
+              href={`/jobs/${job.id}?tab=${t.key}`}
+              className={`shrink-0 border-b-2 px-1 py-3 text-sm font-medium ${
+                activeTab === t.key
+                  ? "border-blue-600 text-blue-600"
+                  : "border-transparent text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {t.label}
+            </Link>
+          ))}
         </nav>
       </div>
 
-      {activeTab === "labor" ? (
+      {activeTab === "labor" && (
         <section className="mt-4 space-y-4">
           <AddLaborForm jobId={job.id} />
           {job.laborEntries.length === 0 ? (
@@ -143,7 +154,39 @@ export default async function JobPage({
             </ul>
           )}
         </section>
-      ) : (
+      )}
+
+      {activeTab === "purchase" && (
+        <section className="mt-4 space-y-4">
+          <AddPurchaseOrderForm jobId={job.id} />
+          {job.purchaseOrders.length === 0 ? (
+            <p className="text-sm text-slate-500">No purchase orders yet.</p>
+          ) : (
+            <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+              {job.purchaseOrders.map((entry) => (
+                <li key={entry.id} className="flex items-center justify-between gap-3 p-3">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">
+                      PO #{entry.poNumber} &middot; {entry.vendor}
+                      {entry.amount != null && <> &middot; ${entry.amount.toFixed(2)}</>}
+                    </p>
+                    <p className="text-xs text-slate-500">
+                      {entry.user.name} — {formatDate(entry.date)}
+                      {entry.description ? ` — ${entry.description}` : ""}
+                    </p>
+                  </div>
+                  <DeleteButton
+                    action={deletePurchaseOrder.bind(null, job.id, entry.id)}
+                    confirmText="Delete this purchase order?"
+                  />
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      {activeTab === "material" && (
         <section className="mt-4 space-y-4">
           <AddMaterialForm jobId={job.id} />
           {job.materialEntries.length === 0 ? (
@@ -174,11 +217,17 @@ export default async function JobPage({
         </section>
       )}
 
+      {activeTab === "notes" && (
+        <section className="mt-4">
+          <NotesForm jobId={job.id} notes={job.notes} />
+        </section>
+      )}
+
       {isAdmin && (
         <div className="mt-8 border-t border-slate-200 pt-4">
           <DeleteButton
             action={deleteJob.bind(null, job.id)}
-            confirmText="Delete this entire job, including all labor and material entries?"
+            confirmText="Delete this entire job, including all labor, material, and purchase order entries?"
           />
         </div>
       )}

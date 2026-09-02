@@ -60,15 +60,36 @@ async function main() {
     },
   ];
 
+  const purchaseOrdersByJobNumber = {
+    "J-1001": [
+      { poNumber: "PO-4021", vendor: "City Electric Supply", description: "200A panel + breakers", amount: 612.4 },
+    ],
+    "J-0998": [
+      { poNumber: "PO-3987", vendor: "Springfield Electrical Wholesale", description: "GFCI breakers and wire", amount: 284.1 },
+    ],
+  };
+
+  let createdCount = 0;
   for (const job of jobs) {
     const existing = await prisma.job.findFirst({ where: { jobNumber: job.jobNumber } });
     if (existing) continue;
-    await prisma.job.create({
+
+    const created = await prisma.job.create({
       data: { ...job, createdById: demoUser.id },
     });
+    createdCount += 1;
+
+    const purchaseOrders = purchaseOrdersByJobNumber[job.jobNumber];
+    if (purchaseOrders) {
+      for (const po of purchaseOrders) {
+        await prisma.purchaseOrder.create({
+          data: { ...po, jobId: created.id, userId: demoUser.id },
+        });
+      }
+    }
   }
 
-  console.log(`Seeded ${jobs.length} pretend jobs (skipping any that already exist).`);
+  console.log(`Seeded ${createdCount} pretend jobs (skipping any that already exist).`);
 }
 
 main()

@@ -13,7 +13,6 @@ type JobDetailsData = {
   location: string;
   customerName: string;
   customerContact: string;
-  notes: string | null;
 };
 
 export default function JobDetails({ job }: { job: JobDetailsData }) {
@@ -59,11 +58,6 @@ export default function JobDetails({ job }: { job: JobDetailsData }) {
             <dd className="inline">{job.customerContact}</dd>
           </div>
         </dl>
-        {job.notes && (
-          <p className="mt-3 whitespace-pre-wrap rounded-md border border-slate-200 bg-white p-3 text-sm text-slate-600">
-            {job.notes}
-          </p>
-        )}
       </div>
     );
   }
@@ -128,18 +122,6 @@ export default function JobDetails({ job }: { job: JobDetailsData }) {
           name="customerContact"
           defaultValue={job.customerContact}
           required
-          className={inputClass}
-        />
-      </div>
-      <div>
-        <label htmlFor="notes" className="block text-xs font-medium text-slate-700">
-          Notes
-        </label>
-        <textarea
-          id="notes"
-          name="notes"
-          defaultValue={job.notes ?? ""}
-          rows={3}
           className={inputClass}
         />
       </div>

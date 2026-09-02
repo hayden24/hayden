@@ -63,7 +63,6 @@ export async function updateJobDetails(
   const customerName = String(formData.get("customerName") ?? "").trim();
   const customerContact = String(formData.get("customerContact") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
-  const notes = String(formData.get("notes") ?? "").trim();
 
   if (!jobNumber || !scopeOfWork || !customerName || !customerContact || !location) {
     return {
@@ -80,13 +79,30 @@ export async function updateJobDetails(
       customerName,
       customerContact,
       location,
-      notes: notes || null,
     },
   });
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/");
   revalidatePath("/assignments/in-progress");
+  return { success: true };
+}
+
+export async function updateJobNotes(
+  jobId: string,
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  await requireUser();
+
+  const notes = String(formData.get("notes") ?? "").trim();
+
+  await prisma.job.update({
+    where: { id: jobId },
+    data: { notes: notes || null },
+  });
+
+  revalidatePath(`/jobs/${jobId}`);
   return { success: true };
 }
 
@@ -190,6 +206,55 @@ export async function deleteMaterialEntry(jobId: string, entryId: string) {
     throw new Error("Not authorized to delete this entry.");
   }
   await prisma.materialEntry.delete({ where: { id: entryId } });
+  revalidatePath(`/jobs/${jobId}`);
+}
+
+export async function addPurchaseOrder(
+  jobId: string,
+  _prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const user = await requireUser();
+
+  const poNumber = String(formData.get("poNumber") ?? "").trim();
+  const vendor = String(formData.get("vendor") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const amountStr = String(formData.get("amount") ?? "");
+  const dateStr = String(formData.get("date") ?? "");
+
+  if (!poNumber || !vendor) {
+    return { error: "A PO number and vendor are required." };
+  }
+
+  const amount = amountStr ? Number(amountStr) : null;
+  if (amount !== null && Number.isNaN(amount)) {
+    return { error: "Amount must be a number." };
+  }
+
+  await prisma.purchaseOrder.create({
+    data: {
+      jobId,
+      userId: user.id,
+      poNumber,
+      vendor,
+      description: description || null,
+      amount,
+      date: dateStr ? new Date(dateStr) : new Date(),
+    },
+  });
+
+  revalidatePath(`/jobs/${jobId}`);
+  return { success: true };
+}
+
+export async function deletePurchaseOrder(jobId: string, entryId: string) {
+  const user = await requireUser();
+  const entry = await prisma.purchaseOrder.findUnique({ where: { id: entryId } });
+  if (!entry) return;
+  if (entry.userId !== user.id && user.role !== "ADMIN") {
+    throw new Error("Not authorized to delete this entry.");
+  }
+  await prisma.purchaseOrder.delete({ where: { id: entryId } });
   revalidatePath(`/jobs/${jobId}`);
 }
 
