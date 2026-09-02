@@ -51,7 +51,7 @@ export default function NewJobForm() {
         disabled={pending}
         className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
       >
-        {pending ? "Creating..." : "Create job"}
+        {pending ? "Creating..." : "Create work order"}
       </button>
     </form>
   );
