@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { formatDate } from "@/lib/format";
 
 export default async function TimekeepingPage() {
   const session = await auth();
@@ -42,7 +35,7 @@ export default async function TimekeepingPage() {
                   {entry.hours.toFixed(2)} hrs &middot; {formatDate(entry.date)}
                 </p>
                 <p className="text-xs text-slate-500">
-                  <Link href={`/jobs/${entry.job.id}?tab=labor`} className="text-blue-600 hover:underline">
+                  <Link href={`/jobs/${entry.job.id}/labor`} className="text-blue-600 hover:underline">
                     {entry.job.scopeOfWork} #{entry.job.jobNumber}
                   </Link>
                   {entry.description ? ` — ${entry.description}` : ""}
