@@ -1,0 +1,76 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  TECH
+}
+
+enum JobStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETE
+  ON_HOLD
+}
+
+model User {
+  id              String          @id @default(cuid())
+  name            String
+  email           String          @unique
+  password        String
+  role            Role            @default(TECH)
+  createdAt       DateTime        @default(now())
+  jobsCreated     Job[]           @relation("JobCreatedBy")
+  laborEntries    LaborEntry[]
+  materialEntries MaterialEntry[]
+}
+
+model Job {
+  id              String          @id @default(cuid())
+  jobNumber       String?
+  title           String
+  customerName    String
+  address         String?
+  status          JobStatus       @default(OPEN)
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  createdBy       User            @relation("JobCreatedBy", fields: [createdById], references: [id])
+  createdById     String
+  laborEntries    LaborEntry[]
+  materialEntries MaterialEntry[]
+}
+
+model LaborEntry {
+  id          String   @id @default(cuid())
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId       String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  date        DateTime
+  hours       Float
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model MaterialEntry {
+  id          String   @id @default(cuid())
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  jobId       String
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  date        DateTime @default(now())
+  description String
+  quantity    Float    @default(1)
+  unitCost    Float?
+  createdAt   DateTime @default(now())
+}
