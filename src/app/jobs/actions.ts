@@ -108,12 +108,12 @@ export async function updateJobNotes(
 
 export async function updateJobStatus(jobId: string, status: string) {
   await requireUser();
-  const validStatuses = ["OPEN", "IN_PROGRESS", "COMPLETE", "ON_HOLD"];
+  const validStatuses = ["OPEN", "IN_PROGRESS", "DONE"];
   if (!validStatuses.includes(status)) return;
 
   await prisma.job.update({
     where: { id: jobId },
-    data: { status: status as "OPEN" | "IN_PROGRESS" | "COMPLETE" | "ON_HOLD" },
+    data: { status: status as "OPEN" | "IN_PROGRESS" | "DONE" },
   });
 
   revalidatePath(`/jobs/${jobId}`);

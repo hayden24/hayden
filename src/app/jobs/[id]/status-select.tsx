@@ -6,8 +6,7 @@ import { updateJobStatus } from "../actions";
 const options = [
   { value: "OPEN", label: "Open" },
   { value: "IN_PROGRESS", label: "In progress" },
-  { value: "COMPLETE", label: "Complete" },
-  { value: "ON_HOLD", label: "On hold" },
+  { value: "DONE", label: "Done" },
 ];
 
 export default function StatusSelect({
@@ -18,19 +17,36 @@ export default function StatusSelect({
   status: string;
 }) {
   const [isPending, startTransition] = useTransition();
+  const activeIndex = Math.max(
+    0,
+    options.findIndex((o) => o.value === status)
+  );
 
   return (
-    <select
-      value={status}
-      disabled={isPending}
-      onChange={(e) => startTransition(() => updateJobStatus(jobId, e.target.value))}
-      className="rounded-md border border-slate-300 bg-white px-2 py-1 text-sm font-medium text-slate-700 disabled:opacity-60"
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <div className="relative inline-grid w-full grid-cols-3 rounded-full bg-slate-100 p-1 sm:w-auto">
+      <div
+        className="absolute inset-y-1 left-1 rounded-full bg-blue-600 transition-transform duration-200 ease-out"
+        style={{
+          width: "calc((100% - 8px) / 3)",
+          transform: `translateX(${activeIndex * 100}%)`,
+        }}
+      />
+      {options.map((opt) => {
+        const isActive = opt.value === status;
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            disabled={isPending}
+            onClick={() => startTransition(() => updateJobStatus(jobId, opt.value))}
+            className={`relative z-10 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-60 sm:text-sm ${
+              isActive ? "text-white" : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            {opt.label}
+          </button>
+        );
+      })}
+    </div>
   );
 }

@@ -18,8 +18,7 @@ enum Role {
 enum JobStatus {
   OPEN
   IN_PROGRESS
-  COMPLETE
-  ON_HOLD
+  DONE
 }
 
 model User {

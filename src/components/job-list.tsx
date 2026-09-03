@@ -4,15 +4,13 @@ import type { Job } from "@prisma/client";
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-700",
   IN_PROGRESS: "bg-amber-100 text-amber-700",
-  COMPLETE: "bg-green-100 text-green-700",
-  ON_HOLD: "bg-slate-200 text-slate-700",
+  DONE: "bg-green-100 text-green-700",
 };
 
 const statusLabels: Record<string, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In progress",
-  COMPLETE: "Complete",
-  ON_HOLD: "On hold",
+  DONE: "Done",
 };
 
 type JobWithTotals = Job & {
