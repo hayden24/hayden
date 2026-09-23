@@ -7,8 +7,7 @@ import { signOutAction } from "@/app/actions";
 const links = [
   { href: "/", label: "My home" },
   { href: "/items/new", label: "Add to my home" },
-  { href: "/projects", label: "Projects" },
-  { href: "/tips", label: "Tips & tricks" },
+  { href: "/share", label: "Share" },
   { href: "/help", label: "Help" },
 ];
 

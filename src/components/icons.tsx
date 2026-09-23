@@ -18,22 +18,13 @@ export function HomeIcon({ className }: IconProps) {
   );
 }
 
-export function HammerIcon({ className }: IconProps) {
+export function ShareIcon({ className }: IconProps) {
   return (
     <svg {...commonProps} className={className}>
-      <path d="M14 6l4 4" />
-      <path d="M11 3l3 3-2 2-3-3z" />
-      <path d="M14 6l4-1 2 2-1 4-4-1" />
-      <path d="M12 8l-8 8a1.5 1.5 0 002 2l8-8" />
-    </svg>
-  );
-}
-
-export function LightbulbIcon({ className }: IconProps) {
-  return (
-    <svg {...commonProps} className={className}>
-      <path d="M9 18h6M10 21h4" />
-      <path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z" />
+      <circle cx="18" cy="5" r="2.5" />
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="19" r="2.5" />
+      <path d="M8.2 10.8l7.6-4.4M8.2 13.2l7.6 4.4" />
     </svg>
   );
 }

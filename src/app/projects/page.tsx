@@ -1,5 +1,5 @@
-import PostFeed from "@/components/post-feed";
+import { redirect } from "next/navigation";
 
 export default function ProjectsPage() {
-  return <PostFeed type="PROJECT" />;
+  redirect("/share?type=project");
 }

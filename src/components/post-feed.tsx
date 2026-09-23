@@ -5,12 +5,25 @@ import { POST_TYPES } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
 import NewPostForm from "./new-post-form";
 
-export default async function PostFeed({ type }: { type: PostType }) {
-  const config = POST_TYPES[type];
-  const isHelp = type === "HELP";
+type Filter = { label: string; href: string; active: boolean };
+
+export default async function PostFeed({
+  title,
+  intro,
+  types,
+  filters,
+}: {
+  title: string;
+  intro: string;
+  // The post types listed here; also the types a new post can be.
+  types: readonly PostType[];
+  filters?: Filter[];
+}) {
+  const isHelp = types.length === 1 && types[0] === "HELP";
+  const showTypeLabel = types.length > 1;
 
   const posts = await prisma.post.findMany({
-    where: { type },
+    where: { type: { in: [...types] } },
     // Unanswered questions float to the top of the Help tab.
     orderBy: isHelp ? [{ solved: "asc" }, { createdAt: "desc" }] : { createdAt: "desc" },
     include: {
@@ -22,16 +35,35 @@ export default async function PostFeed({ type }: { type: PostType }) {
 
   return (
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6">
-      <h1 className="text-lg font-semibold text-slate-900">{config.title}</h1>
-      <p className="mt-1 text-sm text-slate-500">{config.intro}</p>
+      <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
+      <p className="mt-1 text-sm text-slate-500">{intro}</p>
+
+      {filters && (
+        <nav aria-label="Filter posts" className="mt-4 flex gap-2">
+          {filters.map((f) => (
+            <Link
+              key={f.href}
+              href={f.href}
+              aria-current={f.active ? "page" : undefined}
+              className={`rounded-full border px-3 py-1.5 text-sm ${
+                f.active
+                  ? "border-emerald-600 bg-emerald-50 text-emerald-800"
+                  : "border-slate-300 bg-white text-slate-600"
+              }`}
+            >
+              {f.label}
+            </Link>
+          ))}
+        </nav>
+      )}
 
       <div className="mt-4">
-        <NewPostForm type={type} config={config} />
+        <NewPostForm key={types.join()} types={[...types]} />
       </div>
 
       {posts.length === 0 ? (
         <p className="mt-10 text-center text-sm text-slate-500">
-          No {config.singular}s yet — be the first to post one.
+          Nothing here yet — be the first to post.
         </p>
       ) : (
         <ul className="mt-6 space-y-3">
@@ -41,6 +73,11 @@ export default async function PostFeed({ type }: { type: PostType }) {
                 href={`/posts/${post.id}`}
                 className="block rounded-lg border border-slate-200 bg-white p-4 hover:border-emerald-300 hover:shadow-sm"
               >
+                {showTypeLabel && (
+                  <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                    {POST_TYPES[post.type].title}
+                  </p>
+                )}
                 <div className="flex items-start justify-between gap-3">
                   <p className="font-medium text-slate-900">{post.title}</p>
                   {isHelp && (

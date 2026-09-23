@@ -1,5 +1,5 @@
-import PostFeed from "@/components/post-feed";
+import { redirect } from "next/navigation";
 
 export default function TipsPage() {
-  return <PostFeed type="TIP" />;
+  redirect("/share?type=tip");
 }

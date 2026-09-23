@@ -23,7 +23,7 @@ export async function createPost(
     data: { type, title, body, authorId: user.id },
   });
 
-  revalidatePath(POST_TYPES[type].href);
+  revalidatePath(POST_TYPES[type].feedPath);
   redirect(`/posts/${post.id}`);
 }
 
@@ -42,7 +42,7 @@ export async function addReply(
   await prisma.reply.create({ data: { postId, authorId: user.id, body } });
 
   revalidatePath(`/posts/${postId}`);
-  revalidatePath(POST_TYPES[post.type].href);
+  revalidatePath(POST_TYPES[post.type].feedPath);
   return { success: true };
 }
 
@@ -54,7 +54,7 @@ export async function setSolved(postId: string, solved: boolean) {
   }
   await prisma.post.update({ where: { id: postId }, data: { solved } });
   revalidatePath(`/posts/${postId}`);
-  revalidatePath(POST_TYPES[post.type].href);
+  revalidatePath(POST_TYPES[post.type].feedPath);
 }
 
 export async function deletePost(postId: string) {
@@ -65,7 +65,7 @@ export async function deletePost(postId: string) {
     throw new Error("Only the author can delete this post.");
   }
   await prisma.post.delete({ where: { id: postId } });
-  revalidatePath(POST_TYPES[post.type].href);
+  revalidatePath(POST_TYPES[post.type].feedPath);
   redirect(POST_TYPES[post.type].href);
 }
 
