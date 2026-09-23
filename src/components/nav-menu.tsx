@@ -5,10 +5,11 @@ import { useEffect, useRef, useState } from "react";
 import { signOutAction } from "@/app/actions";
 
 const links = [
-  { href: "/", label: "Open assignments" },
-  { href: "/assignments/in-progress", label: "Projects in progress" },
-  { href: "/timekeeping", label: "Timekeeping" },
-  { href: "/jobs/new", label: "New work order" },
+  { href: "/", label: "My home" },
+  { href: "/items/new", label: "Add to my home" },
+  { href: "/projects", label: "Projects" },
+  { href: "/tips", label: "Tips & tricks" },
+  { href: "/help", label: "Help" },
 ];
 
 export default function NavMenu() {

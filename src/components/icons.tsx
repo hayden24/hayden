@@ -9,40 +9,41 @@ const commonProps = {
   strokeLinejoin: "round" as const,
 };
 
-export function ClockIcon({ className }: IconProps) {
+export function HomeIcon({ className }: IconProps) {
   return (
     <svg {...commonProps} className={className}>
-      <circle cx="12" cy="12" r="8" />
-      <path d="M12 8v4l3 2" />
+      <path d="M3 11l9-7 9 7" />
+      <path d="M5 10v10h5v-6h4v6h5V10" />
     </svg>
   );
 }
 
-export function ReceiptIcon({ className }: IconProps) {
+export function HammerIcon({ className }: IconProps) {
   return (
     <svg {...commonProps} className={className}>
-      <path d="M6 3h12v17l-2-1.2-2 1.2-2-1.2-2 1.2-2-1.2-2 1.2V3z" />
-      <path d="M9 8h6M9 12h6" />
+      <path d="M14 6l4 4" />
+      <path d="M11 3l3 3-2 2-3-3z" />
+      <path d="M14 6l4-1 2 2-1 4-4-1" />
+      <path d="M12 8l-8 8a1.5 1.5 0 002 2l8-8" />
     </svg>
   );
 }
 
-export function BoxIcon({ className }: IconProps) {
+export function LightbulbIcon({ className }: IconProps) {
   return (
     <svg {...commonProps} className={className}>
-      <path d="M3 7l9-4 9 4-9 4-9-4z" />
-      <path d="M3 7v10l9 4 9-4V7" />
-      <path d="M12 11v10" />
+      <path d="M9 18h6M10 21h4" />
+      <path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z" />
     </svg>
   );
 }
 
-export function NotesIcon({ className }: IconProps) {
+export function HelpIcon({ className }: IconProps) {
   return (
     <svg {...commonProps} className={className}>
-      <path d="M7 3h7l4 4v14H7z" />
-      <path d="M14 3v4h4" />
-      <path d="M9 12h6M9 16h6" />
+      <path d="M4 5h16v11H9l-5 4z" />
+      <path d="M10 9a2 2 0 113 1.7c-.6.4-1 .8-1 1.3" />
+      <path d="M12 14.5h.01" />
     </svg>
   );
 }

@@ -1,22 +1,27 @@
-# Job Tracker
+# HomeBase
 
-A mobile-friendly web app for tracking electrical service jobs. Each job
-(work order) has a **Labor** folder for logging hours and a **Material**
-folder for logging materials used, with support for multiple user accounts.
+A mobile-friendly web app for homeowners: look up anything about your house —
+paint colors, furnace filter sizes, the light bulbs in a certain room,
+appliance model numbers — and share projects, tips, and help with other
+homeowners.
 
 ## Features
 
-- Email/password accounts (register as a regular user or an office/admin user)
-- **Open assignments** home screen, plus a menu (top right) for **Projects in
-  progress**, **Timekeeping**, and **New work order**
-- Each job/work order tracks: Job number, Location, Scope of work, Customer
-  name, Customer contact, and Job status (Open, In progress, Complete, On
-  hold) — click into a job to edit any of these fields
-- Per-job Labor tab: log date, hours, and a description; running total of hours
-- Per-job Material tab: log description, quantity, and optional unit cost;
-  running total material cost
-- Timekeeping screen: every hour you've logged, across all jobs, in one list
-- Admins can delete jobs; any user can delete their own labor/material entries
+- **My home** tab: your house's details, grouped by room
+  - Search everything at once ("furnace filter", "kitchen", "SW 7029")
+  - Filter by category: Paint, Filters, Light bulbs, Appliances, Plumbing,
+    Electrical, Flooring, Other
+  - Each category asks for the details that matter (paint → color code and
+    sheen; filter → size and MERV rating; bulb → base, wattage, color temp)
+  - Optional replacement reminders (e.g. furnace filter every 3 months) with a
+    "Due" badge and a one-tap "Replaced it today" button
+  - Your home details are private to your account
+- **Projects** tab: share what you've built or fixed
+- **Tips & tricks** tab: quick wins from other homeowners
+- **Help** tab: ask questions and answer others; unanswered questions float to
+  the top, and the asker can mark a question solved
+- Replies on every post; authors can delete their own posts and replies
+- Installable on your phone's home screen (PWA manifest + icons)
 
 ## Getting started
 
@@ -39,15 +44,14 @@ folder for logging materials used, with support for multiple user accounts.
    npx prisma migrate deploy
    ```
 
-4. Optional: seed a few pretend jobs to see the app populated:
+4. Optional: seed sample data to see the app populated:
 
    ```bash
    npx prisma db seed
    ```
 
-   This creates a demo account (`demo@jobtracker.local` / `demo1234`) that
-   owns the sample jobs — any account you register can see them too, since
-   the job list isn't scoped per-user.
+   This creates a demo account (`demo@homebase.local` / `demo1234`) with a
+   filled-in house, plus a few community posts.
 
 5. Run the dev server:
 
@@ -68,6 +72,16 @@ npm run start
 The app reads `DATABASE_URL` and `AUTH_SECRET` from the environment (see
 `.env.example`). When self-hosting behind a reverse proxy, make sure the proxy
 forwards the original `Host` header so sign-in works correctly.
+
+## Project layout
+
+- `src/lib/categories.ts` — item categories, their field labels, and
+  replacement-due logic. Add a category here (and to the `ItemCategory` enum in
+  `prisma/schema.prisma`) to extend the app.
+- `src/lib/posts.ts` — the three community tabs and their copy
+- `src/app/page.tsx` — My home (search + list)
+- `src/app/items/` — add/view/edit home items
+- `src/app/{projects,tips,help}/` and `src/app/posts/` — community tabs
 
 ## Tech stack
 

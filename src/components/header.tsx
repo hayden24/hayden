@@ -12,8 +12,8 @@ export default async function Header() {
       style={{ paddingTop: "env(safe-area-inset-top)" }}
     >
       <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3">
-        <Link href="/" className="font-semibold text-slate-900">
-          Job Tracker
+        <Link href="/" className="flex items-center gap-2 font-semibold text-slate-900">
+          <span aria-hidden>🏡</span> HomeBase
         </Link>
         <div className="flex items-center gap-3 text-sm">
           <span className="hidden text-slate-500 sm:inline">{session.user.name}</span>

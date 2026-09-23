@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { auth } from "@/auth";
 import Header from "@/components/header";
+import AppTabBar from "@/components/app-tab-bar";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -14,13 +16,14 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Job Tracker",
-  description: "Track jobs, labor hours, and materials for electrical service work.",
+  title: "HomeBase",
+  description:
+    "Look up anything about your house — paint colors, filter sizes, light bulbs — and share projects and tips with other homeowners.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Job Tracker",
+    title: "HomeBase",
   },
   icons: {
     icon: [
@@ -32,14 +35,17 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2563eb",
+  themeColor: "#059669",
   viewportFit: "cover",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+  const session = await auth();
+  const signedIn = !!session?.user;
+
   return (
     <html
       lang="en"
@@ -47,10 +53,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body
         className="min-h-full flex flex-col bg-slate-50 text-slate-900"
-        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+        style={{
+          paddingBottom: signedIn
+            ? "calc(4.5rem + env(safe-area-inset-bottom))"
+            : "env(safe-area-inset-bottom)",
+        }}
       >
         <Header />
         {children}
+        {signedIn && <AppTabBar />}
       </body>
     </html>
   );

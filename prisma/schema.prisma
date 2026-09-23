@@ -10,83 +10,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  TECH
+enum ItemCategory {
+  PAINT
+  FILTER
+  LIGHT_BULB
+  APPLIANCE
+  PLUMBING
+  ELECTRICAL
+  FLOORING
+  OTHER
 }
 
-enum JobStatus {
-  OPEN
-  IN_PROGRESS
-  DONE
+enum PostType {
+  PROJECT
+  TIP
+  HELP
 }
 
 model User {
-  id              String          @id @default(cuid())
-  name            String
-  email           String          @unique
-  password        String
-  role            Role            @default(TECH)
-  createdAt       DateTime        @default(now())
-  jobsCreated     Job[]           @relation("JobCreatedBy")
-  laborEntries    LaborEntry[]
-  materialEntries MaterialEntry[]
-  purchaseOrders  PurchaseOrder[]
+  id        String     @id @default(cuid())
+  name      String
+  email     String     @unique
+  password  String
+  createdAt DateTime   @default(now())
+  homeItems HomeItem[]
+  posts     Post[]
+  replies   Reply[]
 }
 
-model Job {
-  id              String          @id @default(cuid())
-  jobNumber       String
-  scopeOfWork     String
-  customerName    String
-  customerContact String
-  location        String
-  status          JobStatus       @default(OPEN)
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
-  createdBy       User            @relation("JobCreatedBy", fields: [createdById], references: [id])
-  createdById     String
-  laborEntries    LaborEntry[]
-  materialEntries MaterialEntry[]
-  purchaseOrders  PurchaseOrder[]
+// One fact about the user's house: a paint color, a furnace filter, the bulbs
+// in a room, etc. The generic columns (brand/model/size/color/spec) are
+// labeled per category in src/lib/categories.ts.
+model HomeItem {
+  id                 String       @id @default(cuid())
+  user               User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String
+  category           ItemCategory @default(OTHER)
+  name               String
+  room               String?
+  brand              String?
+  model              String?
+  size               String?
+  color              String?
+  spec               String?
+  whereToBuy         String?
+  lastReplaced       DateTime?
+  replaceEveryMonths Int?
+  notes              String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+
+  @@index([userId])
 }
 
-model LaborEntry {
-  id          String   @id @default(cuid())
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId       String
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  date        DateTime
-  hours       Float
-  description String?
-  createdAt   DateTime @default(now())
+model Post {
+  id        String   @id @default(cuid())
+  type      PostType
+  title     String
+  body      String
+  solved    Boolean  @default(false)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  replies   Reply[]
+
+  @@index([type, createdAt])
 }
 
-model MaterialEntry {
-  id          String   @id @default(cuid())
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId       String
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  date        DateTime @default(now())
-  description String
-  quantity    Float    @default(1)
-  unitCost    Float?
-  createdAt   DateTime @default(now())
-}
+model Reply {
+  id        String   @id @default(cuid())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
 
-model PurchaseOrder {
-  id          String   @id @default(cuid())
-  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  jobId       String
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  poNumber    String
-  vendor      String
-  description String?
-  amount      Float?
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
+  @@index([postId])
 }

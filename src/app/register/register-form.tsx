@@ -18,7 +18,7 @@ export default function RegisterForm() {
           type="text"
           required
           autoComplete="name"
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
       <div>
@@ -31,7 +31,7 @@ export default function RegisterForm() {
           type="email"
           required
           autoComplete="email"
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
       </div>
       <div>
@@ -45,14 +45,10 @@ export default function RegisterForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
         />
         <p className="mt-1 text-xs text-slate-400">At least 8 characters.</p>
       </div>
-      <label className="flex items-center gap-2 text-sm text-slate-600">
-        <input type="checkbox" name="isAdmin" className="rounded border-slate-300" />
-        I&apos;m an office/admin user (can see and manage all jobs)
-      </label>
       {state?.error && (
         <p className="text-sm text-red-600" role="alert">
           {state.error}
@@ -61,7 +57,7 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={pending}
-        className="w-full rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+        className="w-full rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-60"
       >
         {pending ? "Creating account..." : "Create account"}
       </button>

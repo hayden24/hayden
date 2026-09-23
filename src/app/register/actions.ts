@@ -16,7 +16,6 @@ export async function register(
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const isAdmin = formData.get("isAdmin") === "on";
 
   if (!name || !email || !password) {
     return { error: "All fields are required." };
@@ -37,7 +36,6 @@ export async function register(
       name,
       email,
       password: hashed,
-      role: isAdmin ? "ADMIN" : "TECH",
     },
   });
 
