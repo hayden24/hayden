@@ -3,6 +3,8 @@
 A mobile-friendly web app for tracking electrical service jobs. Each job
 (work order) has a **Labor** folder for logging hours and a **Material**
 folder for logging materials used, with support for multiple user accounts.
+It also keeps a **Customers** file of each site's panels, lighting, and device
+colors so you can look them up when you're not on site.
 
 ## Features
 
@@ -17,6 +19,20 @@ folder for logging materials used, with support for multiple user accounts.
   running total material cost
 - Timekeeping screen: every hour you've logged, across all jobs, in one list
 - Admins can delete jobs; any user can delete their own labor/material entries
+- **Customers** (menu → Customers): searchable by name, address, or phone.
+  Each customer has:
+  - **Panels** – name, location, brand, amps, spaces, type (main breaker,
+    main lug, sub-panel...), voltage/phase, breaker type, and notes. Add as
+    many as the site has.
+  - **Lighting** – by area: fixture type, quantity, lamp, and ballast/driver
+    size, so you can bring the right replacement ballast.
+  - **Devices & service** – outlet color, switch color, cover plate color and
+    type, device style (Decora/toggle), device brand, plus service drop,
+    utility company, and meter number.
+  - **Notes** – access info (gate codes, dogs, lockbox) shown at the top of
+    every tab, plus free-form notes.
+  - Common brands, colors, and lamp types are suggested as you type, but any
+    value can be entered.
 
 ## Getting started
 
@@ -45,7 +61,8 @@ folder for logging materials used, with support for multiple user accounts.
    npx prisma db seed
    ```
 
-   This creates a demo account (`demo@jobtracker.local` / `demo1234`) that
+   This also adds two sample customers with panels and lighting on file, and
+   creates a demo account (`demo@jobtracker.local` / `demo1234`) that
    owns the sample jobs — any account you register can see them too, since
    the job list isn't scoped per-user.
 

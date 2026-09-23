@@ -46,3 +46,30 @@ export function NotesIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function PanelIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <rect x="5" y="3" width="14" height="18" rx="1.5" />
+      <path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" />
+    </svg>
+  );
+}
+
+export function BulbIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <path d="M9 18h6M10 21h4" />
+      <path d="M12 3a6 6 0 0 0-3.5 10.9c.6.4 1 1.1 1 1.8V16h5v-.3c0-.7.4-1.4 1-1.8A6 6 0 0 0 12 3z" />
+    </svg>
+  );
+}
+
+export function OutletIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <rect x="5" y="3" width="14" height="18" rx="2" />
+      <path d="M10 7.5v2M14 7.5v2M10 14.5v2M14 14.5v2" />
+    </svg>
+  );
+}

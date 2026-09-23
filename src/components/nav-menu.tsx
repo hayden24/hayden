@@ -7,6 +7,7 @@ import { signOutAction } from "@/app/actions";
 const links = [
   { href: "/", label: "Open assignments" },
   { href: "/assignments/in-progress", label: "Projects in progress" },
+  { href: "/customers", label: "Customers" },
   { href: "/timekeeping", label: "Timekeeping" },
   { href: "/jobs/new", label: "New work order" },
 ];

@@ -90,3 +90,59 @@ model PurchaseOrder {
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
 }
+
+// A customer site, with the details worth knowing before you show up:
+// service info, device/finish colors, and lists of panels and lighting.
+model Customer {
+  id               String    @id @default(cuid())
+  name             String
+  phone            String?
+  email            String?
+  address          String
+  // Service
+  utilityCompany   String?
+  meterNumber      String?
+  serviceType      String?
+  // Devices & finishes
+  deviceBrand      String?
+  deviceStyle      String?
+  outletColor      String?
+  switchColor      String?
+  coverPlateColor  String?
+  coverPlateType   String?
+  accessNotes      String?
+  notes            String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  panels           Panel[]
+  fixtures         Fixture[]
+}
+
+model Panel {
+  id          String   @id @default(cuid())
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId  String
+  label       String
+  location    String?
+  brand       String?
+  amperage    Int?
+  panelType   String?
+  voltage     String?
+  spaces      Int?
+  breakerType String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+model Fixture {
+  id          String   @id @default(cuid())
+  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId  String
+  location    String
+  fixtureType String?
+  quantity    Int?
+  lampType    String?
+  ballast     String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}

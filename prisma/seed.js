@@ -90,6 +90,105 @@ async function main() {
   }
 
   console.log(`Seeded ${createdCount} pretend jobs (skipping any that already exist).`);
+
+  const customers = [
+    {
+      name: "Karen Willis",
+      address: "412 Oak St, Springfield",
+      phone: "(555) 201-8834",
+      serviceType: "Overhead",
+      utilityCompany: "Springfield Power & Light",
+      deviceBrand: "Leviton",
+      deviceStyle: "Decora (rocker)",
+      outletColor: "White",
+      switchColor: "White",
+      coverPlateColor: "White",
+      coverPlateType: "Screwless",
+      accessNotes: "Side gate code 4821. Friendly dog.",
+      panels: [
+        {
+          label: "Main panel",
+          location: "Garage, east wall",
+          brand: "Square D Homeline",
+          amperage: 200,
+          panelType: "Main breaker",
+          voltage: "120/240V 1Ø",
+          spaces: 40,
+          breakerType: "HOM",
+          notes: "4 spaces open. Kitchen circuits are AFCI/GFCI dual-function.",
+        },
+      ],
+      fixtures: [],
+    },
+    {
+      name: "Springfield Auto Body",
+      address: "77 Industrial Pkwy, Springfield",
+      phone: "(555) 553-7761",
+      serviceType: "Underground",
+      deviceBrand: "Hubbell",
+      deviceStyle: "Standard (toggle/duplex)",
+      outletColor: "Gray",
+      switchColor: "Gray",
+      coverPlateColor: "Gray",
+      coverPlateType: "Unbreakable nylon",
+      accessNotes: "Ask for Mike at the front desk. Shop closes at 5.",
+      panels: [
+        {
+          label: "MDP",
+          location: "Electrical room behind office",
+          brand: "Eaton CH (Cutler-Hammer)",
+          amperage: 400,
+          panelType: "Main breaker",
+          voltage: "120/208V 3Ø",
+          spaces: 42,
+        },
+        {
+          label: "Panel B (shop)",
+          location: "Shop, column C4",
+          brand: "Eaton CH (Cutler-Hammer)",
+          amperage: 225,
+          panelType: "Sub-panel",
+          voltage: "120/208V 3Ø",
+          spaces: 42,
+          notes: "Full. Fed from MDP 225A 3-pole.",
+        },
+      ],
+      fixtures: [
+        {
+          location: "Shop bays",
+          fixtureType: "8' strip",
+          quantity: 24,
+          lampType: "F96T12",
+          ballast: "2-lamp F96T12 HO, 120V magnetic",
+          notes: "Customer wants a quote to retrofit to LED.",
+        },
+        {
+          location: "Front office",
+          fixtureType: "2x4 troffer",
+          quantity: 8,
+          lampType: "F32T8, 4100K",
+          ballast: "3-lamp F32T8, 120-277V, instant start",
+        },
+      ],
+    },
+  ];
+
+  let customerCount = 0;
+  for (const { panels, fixtures, ...customer } of customers) {
+    const existing = await prisma.customer.findFirst({ where: { name: customer.name } });
+    if (existing) continue;
+
+    await prisma.customer.create({
+      data: {
+        ...customer,
+        panels: { create: panels },
+        fixtures: { create: fixtures },
+      },
+    });
+    customerCount += 1;
+  }
+
+  console.log(`Seeded ${customerCount} pretend customers (skipping any that already exist).`);
 }
 
 main()
