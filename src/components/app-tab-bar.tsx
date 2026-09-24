@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { HomeIcon, ShareIcon, HelpIcon } from "@/components/icons";
+import { HomeIcon, ShareIcon, LightbulbIcon, HelpIcon } from "@/components/icons";
 
 const TABS = [
   { href: "/", label: "My home", Icon: HomeIcon, match: ["/", "/items"] },
   { href: "/share", label: "Share", Icon: ShareIcon, match: ["/share"] },
+  { href: "/tips", label: "Tips & tricks", Icon: LightbulbIcon, match: ["/tips"] },
   { href: "/help", label: "Help", Icon: HelpIcon, match: ["/help"] },
 ] as const;
 
@@ -19,7 +20,7 @@ export default function AppTabBar() {
       className="fixed inset-x-0 bottom-0 z-20 border-t border-slate-200 bg-white/95 backdrop-blur"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="mx-auto grid max-w-4xl grid-cols-3">
+      <div className="mx-auto grid max-w-4xl grid-cols-4">
         {TABS.map(({ href, label, Icon, match }) => {
           const active = match.some((m) =>
             m === "/" ? pathname === "/" : pathname === m || pathname.startsWith(`${m}/`)

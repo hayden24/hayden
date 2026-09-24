@@ -5,19 +5,15 @@ import { POST_TYPES } from "@/lib/posts";
 import { formatDate } from "@/lib/format";
 import NewPostForm from "./new-post-form";
 
-type Filter = { label: string; href: string; active: boolean };
-
 export default async function PostFeed({
   title,
   intro,
   types,
-  filters,
 }: {
   title: string;
   intro: string;
   // The post types listed here; also the types a new post can be.
   types: readonly PostType[];
-  filters?: Filter[];
 }) {
   const isHelp = types.length === 1 && types[0] === "HELP";
   const showTypeLabel = types.length > 1;
@@ -37,25 +33,6 @@ export default async function PostFeed({
     <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-6">
       <h1 className="text-lg font-semibold text-slate-900">{title}</h1>
       <p className="mt-1 text-sm text-slate-500">{intro}</p>
-
-      {filters && (
-        <nav aria-label="Filter posts" className="mt-4 flex gap-2">
-          {filters.map((f) => (
-            <Link
-              key={f.href}
-              href={f.href}
-              aria-current={f.active ? "page" : undefined}
-              className={`rounded-full border px-3 py-1.5 text-sm ${
-                f.active
-                  ? "border-emerald-600 bg-emerald-50 text-emerald-800"
-                  : "border-slate-300 bg-white text-slate-600"
-              }`}
-            >
-              {f.label}
-            </Link>
-          ))}
-        </nav>
-      )}
 
       <div className="mt-4">
         <NewPostForm key={types.join()} types={[...types]} />

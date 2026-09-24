@@ -8,6 +8,7 @@ const links = [
   { href: "/", label: "My home" },
   { href: "/items/new", label: "Add to my home" },
   { href: "/share", label: "Share" },
+  { href: "/tips", label: "Tips & tricks" },
   { href: "/help", label: "Help" },
 ];
 

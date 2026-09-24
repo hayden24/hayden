@@ -1,24 +1,19 @@
+import { redirect } from "next/navigation";
 import PostFeed from "@/components/post-feed";
-import { SHARE_TYPES, shareTypeFromParam } from "@/lib/posts";
 
 export default async function SharePage({
   searchParams,
 }: {
   searchParams: Promise<{ type?: string }>;
 }) {
-  const { type } = await searchParams;
-  const active = shareTypeFromParam(type);
+  // Tips used to live here as a filter; they have their own tab now.
+  if ((await searchParams).type === "tip") redirect("/tips");
 
   return (
     <PostFeed
       title="Share"
-      intro="Projects you've tackled and tips worth passing on to other homeowners."
-      types={active ? [active] : SHARE_TYPES}
-      filters={[
-        { label: "All", href: "/share", active: !active },
-        { label: "Projects", href: "/share?type=project", active: active === "PROJECT" },
-        { label: "Tips & tricks", href: "/share?type=tip", active: active === "TIP" },
-      ]}
+      intro="Show off what you've built, fixed, or remodeled — and how you did it."
+      types={["PROJECT"]}
     />
   );
 }

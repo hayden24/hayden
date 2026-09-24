@@ -13,7 +13,7 @@ export type PostTypeConfig = {
 
 export const POST_TYPES: Record<PostType, PostTypeConfig> = {
   PROJECT: {
-    href: "/share?type=project",
+    href: "/share",
     feedPath: "/share",
     title: "Projects",
     intro: "Show off what you've built, fixed, or remodeled — and how you did it.",
@@ -22,8 +22,8 @@ export const POST_TYPES: Record<PostType, PostTypeConfig> = {
     bodyPlaceholder: "What you did, materials used, what you'd do differently...",
   },
   TIP: {
-    href: "/share?type=tip",
-    feedPath: "/share",
+    href: "/tips",
+    feedPath: "/tips",
     title: "Tips & tricks",
     intro: "Quick wins and hard-earned lessons from other homeowners.",
     newLabel: "Share a tip",
@@ -40,15 +40,6 @@ export const POST_TYPES: Record<PostType, PostTypeConfig> = {
     bodyPlaceholder: "Describe the problem, what you've tried, and any details (age of house, model #s)...",
   },
 };
-
-// The Share tab lists these types together, filterable by ?type=project|tip.
-export const SHARE_TYPES = ["PROJECT", "TIP"] as const satisfies readonly PostType[];
-
-export function shareTypeFromParam(param?: string) {
-  if (param === "project") return "PROJECT";
-  if (param === "tip") return "TIP";
-  return undefined;
-}
 
 export function isPostType(value: string): value is PostType {
   return value in POST_TYPES;

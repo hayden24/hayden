@@ -16,8 +16,8 @@ homeowners.
   - Optional replacement reminders (e.g. furnace filter every 3 months) with a
     "Due" badge and a one-tap "Replaced it today" button
   - Your home details are private to your account
-- **Share** tab: projects you've built or fixed and tips & tricks for other
-  homeowners, with All / Projects / Tips & tricks filters
+- **Share** tab: projects you've built, fixed, or remodeled
+- **Tips & tricks** tab: quick wins and lessons for other homeowners
 - **Help** tab: ask questions and answer others; unanswered questions float to
   the top, and the asker can mark a question solved
 - Replies on every post; authors can delete their own posts and replies
@@ -81,7 +81,7 @@ forwards the original `Host` header so sign-in works correctly.
 - `src/lib/posts.ts` — the three community tabs and their copy
 - `src/app/page.tsx` — My home (search + list)
 - `src/app/items/` — add/view/edit home items
-- `src/app/share/`, `src/app/help/` and `src/app/posts/` — community tabs
+- `src/app/share/`, `src/app/tips/`, `src/app/help/` and `src/app/posts/` — community tabs
 
 ## Tech stack
 
