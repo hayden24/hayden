@@ -231,6 +231,49 @@
   .card p { margin: 2px 0 0; color: var(--muted); grid-column: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
   .card .thumb { grid-column: 2; grid-row: 1 / span 3; width: 64px; height: 64px; }
 
+  /* home info */
+  .info {
+    margin-top: 16px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+  }
+  .info-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 14px 0; }
+  .info-head h2 { margin: 0; font: 700 18px/1.2 var(--display); }
+  .info-head .btn { padding: 6px 12px; font-size: 13px; }
+  .info-intro { margin: 4px 14px 14px; color: var(--muted); font-size: 14px; max-width: 55ch; }
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; padding: 12px 14px 14px; }
+  .stat { display: grid; gap: 1px; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font: 600 18px/1.2 var(--display); font-variant-numeric: tabular-nums; }
+  .stat .s { font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .info-sec { border-top: 1px solid var(--line); padding: 12px 14px; }
+  .info-sec .facts { margin-top: 0; }
+  .facts.plain dd { font-family: var(--body); user-select: text; }
+  .age-row {
+    display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 12px;
+    width: 100%; padding: 9px 0; text-align: left;
+    background: none; border: 0; cursor: pointer;
+  }
+  .age-row + .age-row { border-top: 1px dashed var(--line); }
+  .age-name { font-weight: 600; min-width: 0; }
+  .age-val { font: 600 14px/1.2 var(--body); font-variant-numeric: tabular-nums; }
+  .age-meta { grid-column: 1 / -1; font-size: 13px; color: var(--muted); }
+  .life { grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin-top: 3px; }
+  .meter { flex: 1; max-width: 220px; height: 6px; border-radius: 3px; background: var(--sunk); overflow: hidden; }
+  .meter span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .aging .meter span { background: var(--warn); }
+  .life small { font-size: 12px; color: var(--faint); font-variant-numeric: tabular-nums; }
+  .aging .age-val { color: var(--warn); }
+  .info-toggle {
+    width: 100%; padding: 11px 14px;
+    border: 0; border-top: 1px solid var(--line); border-radius: 0 0 14px 14px;
+    background: none; color: var(--accent-text); font-weight: 600; font-size: 14px; cursor: pointer;
+  }
+  .contact-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) { .contact-row { grid-template-columns: 1fr 1fr; } .contact-row input:last-child { grid-column: 1 / -1; } }
+  .contact-row input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font-size: 16px; }
+
   /* to-fix */
   .quick { display: flex; gap: 8px; margin-top: 18px; }
   .quick input {
@@ -425,6 +468,15 @@
   const CAT_KEYS = Object.keys(CATEGORIES);
   const DETAIL_KEYS = ["brand", "model", "size", "color", "spec"];
   const COMMON_ROOMS = ["Kitchen", "Living room", "Primary bedroom", "Bathroom", "Basement", "Garage", "Exterior", "Whole house"];
+  // Rough typical service life in years, matched against an item's name.
+  const LIFESPANS = [
+    [/tankless/, 20], [/water heater|hot water/, 10], [/heat pump/, 15], [/boiler/, 20], [/furnace/, 18],
+    [/air condition|\bac\b|a\/c|condenser/, 15], [/dishwasher/, 10], [/refrigerator|fridge|freezer/, 13],
+    [/microwave/, 9], [/dryer/, 13], [/washer|washing machine/, 11], [/range|oven|stove|cooktop/, 15],
+    [/disposal/, 12], [/sump pump/, 10], [/softener/, 12], [/garage door opener|door opener/, 12],
+    [/carbon monoxide|co detector|co alarm/, 7], [/smoke (detector|alarm)/, 10], [/roof/, 22],
+  ];
+  const ROOFS = { asphalt: ["Asphalt shingle", 22], metal: ["Metal", 45], tile: ["Tile", 50], wood: ["Wood shake", 25], flat: ["Flat / membrane", 18], other: ["Other", null] };
   const PRIORITIES = { urgent: { label: "Urgent", rank: 0 }, soon: { label: "Soon", rank: 1 }, someday: { label: "Someday", rank: 2 } };
 
   const ICON = {
@@ -455,7 +507,8 @@
     cat: "",
     ready: false,
     offline: false,
-    data: { items: [], projects: [], tips: [], fixes: [] },
+    data: { items: [], projects: [], tips: [], fixes: [], info: null },
+    infoOpen: (() => { try { return localStorage.getItem("hb-info-open") === "1"; } catch { return false; } })(),
   };
   let db = null;
   let assets = null;
@@ -488,6 +541,19 @@
     const due = nextDue(item);
     return !!due && due.getTime() <= Date.now();
   };
+  const thisYear = () => new Date().getFullYear();
+  const ageOf = (year) => (year ? Math.max(0, thisYear() - Number(year)) : null);
+  const ageText = (a) => (a === null ? "" : a < 1 ? "Under 1 yr" : `${a} ${a === 1 ? "yr" : "yrs"}`);
+  function typicalLife(item) {
+    const n = (item.name || "").toLowerCase();
+    const hit = LIFESPANS.find(([re]) => re.test(n));
+    return hit ? hit[1] : null;
+  }
+  function warrantyText(item) {
+    const d = parseDay(item.warrantyUntil);
+    if (!d) return "";
+    return d.getTime() >= new Date().setHours(0, 0, 0, 0) ? `Under warranty until ${fmtDay(d)}` : `Warranty ended ${fmtDay(d)}`;
+  }
   const summary = (item) =>
     (CATEGORIES[item.category] || CATEGORIES.OTHER).fields.map(([k]) => item[k]).filter(Boolean).slice(0, 3).join(" · ");
 
@@ -618,6 +684,7 @@
           <div><h1>My home</h1><div class="meta-line" id="home-count"></div></div>
           <button class="btn btn-primary" data-action="new-item">${icon("plus", 2.2)} Add</button>
         </div>
+        <div id="home-info"></div>
         <div class="search">${icon("search")}
           <input id="q" type="search" autocomplete="off" placeholder="Filter size, paint code, kitchen bulbs…" value="${esc(state.q)}" aria-label="Search your home">
         </div>
@@ -662,7 +729,11 @@
       body.innerHTML = `<p class="none">Loading your house…</p>`;
       return;
     }
-    if (state.view === "home") html += homeBody();
+    if (state.view === "home") {
+      const slot = $("#home-info");
+      if (slot) slot.innerHTML = infoCard();
+      html += homeBody();
+    }
     else if (state.view === "projects") html += projectsBody();
     else if (state.view === "tips") html += tipsBody();
     else html += fixBody();
@@ -681,6 +752,160 @@
       ${isDue(item) ? `<span class="pill due">Due</span>` : `<span class="tag">${esc(cat.label.replace(/s$/, ""))}</span>`}
       ${extra}
     </button>`;
+  }
+
+  function infoCard() {
+    const info = state.data.info || {};
+    const aged = state.data.items
+      .filter((i) => i.installedYear || i.lastReplaced)
+      .map((i) => ({ id: i.id, name: i.name, age: ageOf(i.installedYear), life: typicalLife(i), item: i }));
+    if (info.roofYear) {
+      const [label, life] = ROOFS[info.roofMaterial] || ROOFS.asphalt;
+      aged.push({ roof: true, name: "Roof", age: ageOf(info.roofYear), life, label, year: info.roofYear });
+    }
+    aged.forEach((a) => (a.frac = a.age !== null && a.life ? a.age / a.life : null));
+    aged.sort((a, b) => (b.frac ?? -1) - (a.frac ?? -1) || (b.age ?? -1) - (a.age ?? -1));
+
+    const stats = [];
+    if (info.yearBuilt) stats.push(["Built", info.yearBuilt, `${ageText(ageOf(info.yearBuilt))} old`]);
+    if (info.sqft) stats.push(["Size", `${Number(info.sqft).toLocaleString()} sq ft`, ""]);
+    if (info.roofYear) stats.push(["Roof", info.roofYear, `${ageText(ageOf(info.roofYear))} · ${(ROOFS[info.roofMaterial] || ROOFS.asphalt)[0].toLowerCase()}`]);
+    const warrantied = state.data.items.filter((i) => warrantyText(i).startsWith("Under")).length;
+    if (warrantied) stats.push(["Under warranty", `${warrantied} ${warrantied === 1 ? "item" : "items"}`, ""]);
+
+    const places = [["Main water shutoff", info.waterShutoff], ["Gas shutoff", info.gasShutoff], ["Electrical panel", info.panel]].filter(([, v]) => v);
+    const contacts = (info.contacts || []).filter((c) => c.name || c.phone || c.role);
+    const hasAnything = stats.length || aged.length || places.length || contacts.length || info.notes;
+
+    if (!hasAnything) {
+      return `<section class="info" aria-labelledby="info-h">
+        <div class="info-head"><h2 id="info-h">Home info</h2>
+          <button class="btn btn-primary" data-action="edit-info">Add</button></div>
+        <p class="info-intro">Year built, roof age, where the water shutoff is, and who to call. Add a year installed to appliances and their ages show up here too.</p>
+      </section>`;
+    }
+
+    const ageRow = (a) => {
+      const aging = a.frac !== null && a.frac >= 0.8;
+      const meta = a.roof
+        ? `Installed ${a.year} · ${a.label}`
+        : [a.item.installedYear ? `Installed ${a.item.installedYear}` : "", a.item.lastReplaced ? `Last maintained ${fmtDay(a.item.lastReplaced)}` : "", warrantyText(a.item)].filter(Boolean).join(" · ");
+      const lifeNote = a.frac === null ? "" : a.frac >= 1 ? "Past typical life" : aging ? "Nearing typical life" : `Typical life ~${a.life} yrs`;
+      return `<button class="age-row ${aging ? "aging" : ""}" ${a.roof ? 'data-action="edit-info"' : `data-action="open-item" data-id="${esc(a.id)}"`}>
+        <span class="age-name">${esc(a.name)}</span>
+        <span class="age-val">${esc(a.age !== null ? ageText(a.age) : "")}</span>
+        ${meta ? `<span class="age-meta">${esc(meta)}</span>` : ""}
+        ${a.frac !== null ? `<span class="life"><span class="meter" role="img" aria-label="${a.age} of about ${a.life} years"><span style="width:${Math.min(100, Math.round(a.frac * 100))}%"></span></span><small>${lifeNote}${a.frac >= 0.8 ? ` (~${a.life} yrs)` : ""}</small></span>` : ""}
+      </button>`;
+    };
+
+    const open = state.infoOpen;
+    const shownAges = open ? aged : aged.slice(0, 3);
+    const hiddenCount = aged.length - shownAges.length + (open ? 0 : (places.length ? 1 : 0) + (contacts.length ? 1 : 0) + (info.notes ? 1 : 0));
+    const factList = (rows, copy, plain) => `<dl class="facts${plain ? " plain" : ""}">${rows.map(([l, v]) =>
+      `<div class="fact"><dt>${esc(l)}</dt><dd>${esc(v)}</dd>${copy ? `<button class="copy" data-action="copy" data-value="${esc(v)}">Copy</button>` : ""}</div>`).join("")}</dl>`;
+
+    return `<section class="info" aria-labelledby="info-h">
+      <div class="info-head"><h2 id="info-h">Home info</h2>
+        <button class="btn btn-quiet" data-action="edit-info">Edit</button></div>
+      ${stats.length ? `<div class="stats">${stats.map(([k, v, sub]) =>
+        `<div class="stat"><span class="k">${k}</span><span class="v">${esc(v)}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ""}</div>`).join("")}</div>` : `<div style="height:12px"></div>`}
+      ${shownAges.length ? `<div class="info-sec"><h3 class="section-label">Ages &amp; upkeep<span>${aged.length}</span></h3>${shownAges.map(ageRow).join("")}</div>` : ""}
+      ${open && places.length ? `<div class="info-sec"><h3 class="section-label">Where things are</h3>${factList(places, false, true)}</div>` : ""}
+      ${open && contacts.length ? `<div class="info-sec"><h3 class="section-label">Who to call</h3>${factList(contacts.map((c) => [[c.role, c.name].filter(Boolean).join(" · "), c.phone || ""]), true)}</div>` : ""}
+      ${open && info.notes ? `<div class="info-sec"><h3 class="section-label">Good to know</h3><p class="notes" style="margin:0">${esc(info.notes)}</p></div>` : ""}
+      ${open || hiddenCount > 0 ? `<button class="info-toggle" data-action="toggle-info" aria-expanded="${open}">${open ? "Show less" : "Show all home info"}</button>` : ""}
+    </section>`;
+  }
+
+  function infoForm() {
+    const info = state.data.info || {};
+    const contacts = (info.contacts || []).length ? info.contacts : [{ role: "Plumber" }, { role: "Electrician" }, { role: "HVAC service" }];
+    const contactRow = (c = {}) => `<div class="contact-row">
+      <input name="c-role" maxlength="40" placeholder="Role (Plumber)" value="${esc(c.role)}" aria-label="Role">
+      <input name="c-name" maxlength="80" placeholder="Name / company" value="${esc(c.name)}" aria-label="Name or company">
+      <input name="c-phone" maxlength="40" inputmode="tel" placeholder="Phone" value="${esc(c.phone)}" aria-label="Phone">
+    </div>`;
+    const field = (id, label, value, attrs = "") =>
+      `<div class="field"><label for="${id}">${label}</label><input id="${id}" name="${id}" value="${esc(value)}" ${attrs}></div>`;
+    openSheet(`
+      ${sheetTop("Home info", "Your house at a glance")}
+      <form class="f" id="info-form" novalidate>
+        <div class="box">
+          <span class="legend">The house</span>
+          <div class="grid2">
+            ${field("yearBuilt", "Year built", info.yearBuilt, `type="number" inputmode="numeric" min="1700" max="${thisYear() + 1}" placeholder="1998"`)}
+            ${field("sqft", "Square feet", info.sqft, 'type="number" inputmode="numeric" min="0" placeholder="2150"')}
+            ${field("roofYear", "Roof installed (year)", info.roofYear, `type="number" inputmode="numeric" min="1900" max="${thisYear() + 1}" placeholder="2012"`)}
+            <div class="field"><label for="roofMaterial">Roof type</label>
+              <select id="roofMaterial" name="roofMaterial">${Object.entries(ROOFS).map(([k, [l]]) =>
+                `<option value="${k}" ${(info.roofMaterial || "asphalt") === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+          </div>
+        </div>
+        <div class="box">
+          <span class="legend">Where things are</span>
+          <div class="grid2">
+            ${field("waterShutoff", "Main water shutoff", info.waterShutoff, 'maxlength="160" placeholder="Basement, behind the furnace"')}
+            ${field("gasShutoff", "Gas shutoff", info.gasShutoff, 'maxlength="160" placeholder="Outside, left of the meter"')}
+            ${field("panel", "Electrical panel", info.panel, 'maxlength="160" placeholder="Garage, north wall"')}
+          </div>
+        </div>
+        <div class="box">
+          <span class="legend">Who to call</span>
+          <div id="contacts" style="display:grid;gap:8px">${contacts.map(contactRow).join("")}</div>
+          <button type="button" class="btn btn-quiet" data-action="add-contact" style="justify-self:start">${icon("plus", 2.2)} Add another</button>
+        </div>
+        <div class="field"><label for="info-notes">Good to know</label>
+          <textarea id="info-notes" name="notes" maxlength="4000" placeholder="Sprinkler shutoff is in the side yard box. Sump pump checked each spring. Septic pumped every 3 years.">${esc(info.notes)}</textarea></div>
+        <p class="form-error" id="form-error" hidden></p>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Save</button>
+          <button class="btn btn-quiet" type="button" data-action="close-sheet">Cancel</button>
+        </div>
+      </form>`, (panel) => {
+      const form = panel.querySelector("#info-form");
+      panel.querySelector('[data-action="add-contact"]').addEventListener("click", () => {
+        panel.querySelector("#contacts").insertAdjacentHTML("beforeend", contactRow());
+        panel.querySelector("#contacts .contact-row:last-child input").focus();
+      });
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const err = panel.querySelector("#form-error");
+        const num = (k) => { const v = String(fd.get(k) || "").trim(); return v ? Number(v) : null; };
+        const data = {
+          yearBuilt: num("yearBuilt"), sqft: num("sqft"), roofYear: num("roofYear"),
+          roofMaterial: String(fd.get("roofMaterial") || "asphalt"),
+          waterShutoff: String(fd.get("waterShutoff") || "").trim() || null,
+          gasShutoff: String(fd.get("gasShutoff") || "").trim() || null,
+          panel: String(fd.get("panel") || "").trim() || null,
+          notes: String(fd.get("notes") || "").trim() || null,
+        };
+        const roles = fd.getAll("c-role"), names = fd.getAll("c-name"), phones = fd.getAll("c-phone");
+        data.contacts = roles.map((r, i) => ({ role: String(r).trim(), name: String(names[i]).trim(), phone: String(phones[i]).trim() }))
+          .filter((c) => c.name || c.phone);
+        for (const k of ["yearBuilt", "roofYear"]) {
+          if (data[k] !== null && !(Number.isInteger(data[k]) && data[k] > 1700 && data[k] <= thisYear() + 1)) {
+            err.textContent = "Years should look like 1998."; err.hidden = false; return;
+          }
+        }
+        if (data.sqft !== null && !(data.sqft >= 0)) { err.textContent = "Square feet should be a number."; err.hidden = false; return; }
+        const btn = form.querySelector('[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        try {
+          if (!db) throw new Error("offline");
+          await db.doc("home/info").set({ ...data, updatedAt: Date.now() });
+          toast("Home info saved");
+          closeSheet();
+        } catch (e2) {
+          err.textContent = saveErrorMessage(e2);
+          err.hidden = false;
+          btn.disabled = false;
+          btn.textContent = "Save";
+        }
+      });
+    });
   }
 
   function homeBody() {
@@ -863,6 +1088,11 @@
     const cat = CATEGORIES[item.category] || CATEGORIES.OTHER;
     const facts = cat.fields.filter(([k]) => item[k]).map(([k, label]) => [label, item[k]]);
     if (item.whereToBuy) facts.push(["Where to buy", item.whereToBuy]);
+    if (item.installedYear) {
+      const life = typicalLife(item);
+      facts.push(["Age", `${ageText(ageOf(item.installedYear))} (since ${item.installedYear})${life ? ` · typical life ~${life} yrs` : ""}`]);
+    }
+    if (item.warrantyUntil) facts.push(["Warranty", warrantyText(item).replace(/^Under warranty until/, "Until").replace(/^Warranty ended/, "Ended")]);
     const due = nextDue(item);
     const overdue = isDue(item);
     openSheet(`
@@ -873,7 +1103,7 @@
       ${item.notes ? `<p class="notes">${esc(item.notes)}</p>` : ""}
       ${item.lastReplaced || due ? `
         <div class="reminder ${overdue ? "due" : ""}">
-          <span>${item.lastReplaced ? `Last done ${fmtDay(item.lastReplaced)}. ` : ""}${due ? `<strong>${overdue ? "Due now" : "Next due " + fmtDay(due)}</strong>` : ""}</span>
+          <span>${item.lastReplaced ? `Last maintained ${fmtDay(item.lastReplaced)}. ` : ""}${due ? `<strong>${overdue ? "Due now" : "Next due " + fmtDay(due)}</strong>` : ""}</span>
           ${item.replaceEveryMonths ? `<button class="btn btn-primary" data-action="replaced" data-id="${esc(item.id)}">Replaced it today</button>` : ""}
         </div>` : ""}
       <div class="actions">
@@ -909,9 +1139,13 @@
             <input id="f-where" name="whereToBuy" maxlength="200" value="${esc(values.whereToBuy)}" placeholder="Home Depot, aisle 12"></div>
         </div>
         <div class="box">
-          <span class="legend">Replacement reminder (optional)</span>
+          <span class="legend">Age &amp; upkeep (optional)</span>
           <div class="grid2">
-            <div class="field"><label for="f-last">Last replaced or done</label>
+            <div class="field"><label for="f-year">Year installed or bought</label>
+              <input id="f-year" name="installedYear" type="number" min="1900" max="${thisYear() + 1}" step="1" inputmode="numeric" value="${esc(values.installedYear)}" placeholder="${thisYear() - 5}"></div>
+            <div class="field"><label for="f-warranty">Warranty until</label>
+              <input id="f-warranty" name="warrantyUntil" type="date" value="${esc(values.warrantyUntil)}"></div>
+            <div class="field"><label for="f-last">Last maintained or replaced</label>
               <input id="f-last" name="lastReplaced" type="date" value="${esc(values.lastReplaced)}"></div>
             <div class="field"><label for="f-months">Every how many months</label>
               <input id="f-months" name="replaceEveryMonths" type="number" min="1" step="1" inputmode="numeric" value="${esc(months)}" placeholder="3"></div>
@@ -968,8 +1202,13 @@
         if (monthsN !== null && (!Number.isInteger(monthsN) || monthsN < 1)) {
           err.textContent = "Use a whole number of months, like 3."; err.hidden = false; return;
         }
-        const data = { category: cat, name, replaceEveryMonths: monthsN };
-        ["room", "whereToBuy", "notes", "lastReplaced", ...DETAIL_KEYS].forEach((k) => {
+        const yearStr = String(fd.get("installedYear") || "").trim();
+        const installedYear = yearStr ? Number(yearStr) : null;
+        if (installedYear !== null && !(Number.isInteger(installedYear) && installedYear >= 1900 && installedYear <= thisYear() + 1)) {
+          err.textContent = "Year installed should look like 2018."; err.hidden = false; return;
+        }
+        const data = { category: cat, name, replaceEveryMonths: monthsN, installedYear };
+        ["room", "whereToBuy", "notes", "lastReplaced", "warrantyUntil", ...DETAIL_KEYS].forEach((k) => {
           data[k] = String(fd.get(k) || "").trim() || null;
         });
         const btn = form.querySelector('[type="submit"]');
@@ -1146,6 +1385,11 @@
         el.remove();
         return;
       }
+      case "edit-info": return infoForm();
+      case "toggle-info":
+        state.infoOpen = !state.infoOpen;
+        try { localStorage.setItem("hb-info-open", state.infoOpen ? "1" : "0"); } catch {}
+        return renderBody();
       case "cat":
         state.cat = el.dataset.cat;
         return renderBody();
@@ -1240,6 +1484,13 @@
       renderBody();
       return;
     }
+    db.doc("home/info").onSnapshot(
+      (snap) => {
+        state.data.info = snap.exists ? snap.data() : null;
+        if (state.ready) renderBody();
+      },
+      () => {}
+    );
     let pending = COLLECTIONS.length;
     COLLECTIONS.forEach((c) => {
       let first = true;
