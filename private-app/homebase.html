@@ -1,0 +1,1264 @@
+<title>HomeBase</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #F3F5F0;
+    --surface: #FFFFFF;
+    --sunk: #E9ECE5;
+    --ink: #1B231E;
+    --muted: #5B675F;
+    --faint: #8A958D;
+    --line: #DADFD7;
+    --accent: #1E7552;
+    --accent-ink: #FFFFFF;
+    --accent-soft: #E0EFE6;
+    --accent-text: #175C40;
+    --warn: #9A4D0A;
+    --warn-soft: #FBEDD9;
+    --danger: #B42318;
+    --danger-soft: #FCE9E7;
+    --scrim: rgba(20, 27, 23, 0.42);
+    --shadow: 0 1px 2px rgba(27, 35, 30, 0.05), 0 10px 30px rgba(27, 35, 30, 0.12);
+    --display: "Bricolage Grotesque", "Public Sans", system-ui, sans-serif;
+    --body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --tabbar-h: 64px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111613;
+      --surface: #19201C;
+      --sunk: #222A25;
+      --ink: #E6ECE7;
+      --muted: #A0ACA4;
+      --faint: #748078;
+      --line: #2B352F;
+      --accent: #45BC86;
+      --accent-ink: #0C1A12;
+      --accent-soft: #1C3128;
+      --accent-text: #7AD3A7;
+      --warn: #F0A55A;
+      --warn-soft: #36271A;
+      --danger: #F2877D;
+      --danger-soft: #3A1E1B;
+      --scrim: rgba(0, 0, 0, 0.6);
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.45);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111613;
+    --surface: #19201C;
+    --sunk: #222A25;
+    --ink: #E6ECE7;
+    --muted: #A0ACA4;
+    --faint: #748078;
+    --line: #2B352F;
+    --accent: #45BC86;
+    --accent-ink: #0C1A12;
+    --accent-soft: #1C3128;
+    --accent-text: #7AD3A7;
+    --warn: #F0A55A;
+    --warn-soft: #36271A;
+    --danger: #F2877D;
+    --danger-soft: #3A1E1B;
+    --scrim: rgba(0, 0, 0, 0.6);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px rgba(0, 0, 0, 0.45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.5 var(--body);
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding-inline: 16px;
+    padding-block: 20px calc(var(--tabbar-h) + 32px);
+  }
+
+  /* ---------- headings ---------- */
+  .brand {
+    display: flex; align-items: center; gap: 8px;
+    font: 700 13px/1 var(--display);
+    letter-spacing: 0.02em;
+    color: var(--accent-text);
+  }
+  .brand svg { width: 18px; height: 18px; }
+  .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-top: 14px; }
+  h1 {
+    margin: 0;
+    font: 700 30px/1.1 var(--display);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .lede { margin: 6px 0 0; color: var(--muted); max-width: 60ch; }
+  .section-label {
+    margin: 0 0 8px;
+    font: 600 11px/1.2 var(--body);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; justify-content: space-between;
+  }
+  .section-label span { font-variant-numeric: tabular-nums; color: var(--faint); letter-spacing: 0.02em; }
+
+  /* ---------- controls ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid transparent; border-radius: 10px;
+    padding: 9px 14px; font-weight: 600; font-size: 14px;
+    cursor: pointer; white-space: nowrap;
+    background: var(--sunk); color: var(--ink);
+  }
+  .btn:disabled { opacity: 0.55; cursor: default; }
+  .btn-primary { background: var(--accent); color: var(--accent-ink); }
+  .btn-quiet { background: transparent; border-color: var(--line); }
+  .btn-danger { background: transparent; color: var(--danger); border-color: var(--line); }
+  .btn-danger.armed { background: var(--danger); color: #fff; border-color: var(--danger); }
+  .btn svg { width: 16px; height: 16px; }
+
+  .search {
+    margin-top: 18px;
+    position: relative;
+  }
+  .search svg { position: absolute; left: 14px; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); color: var(--faint); pointer-events: none; }
+  .search input {
+    width: 100%;
+    padding: 13px 14px 13px 42px;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: var(--surface);
+    font-size: 16px;
+  }
+  .search input::placeholder { color: var(--faint); }
+
+  .chips { display: flex; gap: 6px; overflow-x: auto; margin: 12px -16px 0; padding: 0 16px 4px; scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+  .chip {
+    flex: none;
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; font-size: 13px; font-weight: 500;
+    background: var(--surface); color: var(--muted); cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-text); }
+  .chip .n { font-variant-numeric: tabular-nums; color: var(--faint); margin-left: 4px; }
+
+  /* ---------- lists ---------- */
+  .stack { display: grid; gap: 22px; margin-top: 20px; }
+  .list {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .row {
+    display: flex; align-items: center; gap: 12px;
+    width: 100%; padding: 12px 14px;
+    background: none; border: 0; text-align: left; cursor: pointer;
+  }
+  .row + .row, .row + .fix, .fix + .fix, .fix + .row { border-top: 1px solid var(--line); }
+  .row:hover { background: var(--sunk); }
+  .row-main { min-width: 0; flex: 1; display: grid; gap: 2px; }
+  .row-title { font-weight: 600; }
+  .row-spec {
+    font: 13px/1.4 var(--mono);
+    color: var(--muted);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .thumb {
+    flex: none; width: 44px; height: 44px; border-radius: 8px;
+    object-fit: cover; background: var(--sunk);
+  }
+  .tag {
+    flex: none;
+    font: 600 10.5px/1 var(--body); letter-spacing: 0.07em; text-transform: uppercase;
+    color: var(--faint);
+  }
+  .pill {
+    flex: none;
+    font-size: 12px; font-weight: 600;
+    padding: 3px 8px; border-radius: 999px;
+    background: var(--sunk); color: var(--muted);
+  }
+  .pill.due, .pill.urgent { background: var(--warn-soft); color: var(--warn); }
+  .pill.soon { background: var(--accent-soft); color: var(--accent-text); }
+
+  .banner {
+    margin-top: 16px; padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--warn-soft); color: var(--warn);
+    font-size: 14px;
+  }
+  .banner button { background: none; border: 0; padding: 0; color: inherit; font-weight: 600; text-decoration: underline; cursor: pointer; }
+  .meta-line { margin-top: 4px; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  .empty {
+    margin-top: 22px;
+    padding: 22px 18px;
+    border: 1px dashed var(--line); border-radius: 14px;
+    background: var(--surface);
+  }
+  .empty h2 { margin: 0; font: 700 19px/1.25 var(--display); }
+  .empty p { margin: 6px 0 0; color: var(--muted); max-width: 55ch; }
+  .starters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .examples { margin-top: 18px; opacity: 0.62; pointer-events: none; }
+  .examples .row { cursor: default; }
+  .example-tag { font: 600 10.5px/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--faint); margin-bottom: 8px; }
+
+  .none { margin-top: 28px; text-align: center; color: var(--muted); }
+
+  /* cards: projects & tips */
+  .cards { display: grid; gap: 10px; margin-top: 20px; }
+  .card {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+    width: 100%; text-align: left; cursor: pointer;
+    padding: 14px; border-radius: 14px;
+    border: 1px solid var(--line); background: var(--surface);
+  }
+  .card:hover { border-color: var(--faint); }
+  .card .when { font: 12.5px/1.3 var(--mono); color: var(--muted); }
+  .card h3 { margin: 0; font: 600 16px/1.3 var(--body); grid-column: 1; }
+  .card p { margin: 2px 0 0; color: var(--muted); grid-column: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line; }
+  .card .thumb { grid-column: 2; grid-row: 1 / span 3; width: 64px; height: 64px; }
+
+  /* to-fix */
+  .quick { display: flex; gap: 8px; margin-top: 18px; }
+  .quick input {
+    flex: 1; min-width: 0;
+    padding: 12px 14px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--surface); font-size: 16px;
+  }
+  .fix { display: flex; align-items: center; gap: 4px; padding-left: 6px; }
+  .fix .row { padding-left: 6px; }
+  .check {
+    flex: none; width: 40px; height: 40px;
+    display: grid; place-items: center;
+    background: none; border: 0; cursor: pointer; color: var(--faint);
+  }
+  .check span {
+    width: 22px; height: 22px; border-radius: 7px;
+    border: 2px solid currentColor; display: grid; place-items: center;
+  }
+  .check[aria-pressed="true"] { color: var(--accent); }
+  .check[aria-pressed="true"] span { background: var(--accent); }
+  .check svg { width: 14px; height: 14px; color: var(--accent-ink); }
+  .done .row-title { text-decoration: line-through; color: var(--faint); font-weight: 500; }
+  details.done-list { margin-top: 22px; }
+  details.done-list summary { cursor: pointer; color: var(--muted); font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+
+  /* ---------- tab bar ---------- */
+  .tabbar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    background: color-mix(in srgb, var(--surface) 94%, transparent);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .tabbar-inner { max-width: 720px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+  .tab {
+    height: var(--tabbar-h);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    background: none; border: 0; cursor: pointer;
+    font-size: 11.5px; font-weight: 600; color: var(--faint);
+  }
+  .tab svg { width: 22px; height: 22px; }
+  .tab[aria-current="page"] { color: var(--accent-text); }
+  .tab .badge {
+    position: absolute; transform: translate(14px, -12px);
+    min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px;
+    background: var(--warn); color: var(--surface);
+    font: 700 10.5px/17px var(--body); text-align: center;
+  }
+  .tab-icon { position: relative; display: grid; place-items: center; }
+
+  /* ---------- sheet ---------- */
+  .sheet { position: fixed; inset: 0; z-index: 40; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet-scrim { position: absolute; inset: 0; background: var(--scrim); }
+  .sheet-panel {
+    position: relative;
+    width: 100%; max-width: 640px;
+    max-height: calc(100% - 24px - env(safe-area-inset-top, 0px));
+    overflow-y: auto;
+    background: var(--bg);
+    border-radius: 18px 18px 0 0;
+    box-shadow: var(--shadow);
+    padding-inline: 18px;
+    padding-block: 18px calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: rise 0.22s ease-out;
+  }
+  @media (min-width: 700px) {
+    .sheet { align-items: center; }
+    .sheet-panel { border-radius: 18px; max-height: calc(100% - 64px); }
+  }
+  @keyframes rise { from { transform: translateY(24px); opacity: 0.6; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .sheet-panel { animation: none; } }
+  .sheet-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+  .eyebrow { font: 600 11px/1.3 var(--body); letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+  .sheet h2 { margin: 4px 0 0; font: 700 24px/1.15 var(--display); text-wrap: balance; }
+  .x { flex: none; width: 36px; height: 36px; border-radius: 10px; border: 0; background: var(--sunk); cursor: pointer; display: grid; place-items: center; }
+  .x svg { width: 18px; height: 18px; }
+
+  .photo { display: block; width: 100%; max-height: 320px; object-fit: cover; border-radius: 12px; margin-top: 14px; background: var(--sunk); }
+  .facts { margin: 16px 0 0; display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .fact { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--surface); }
+  .fact dt { width: 38%; flex: none; color: var(--muted); font-size: 13px; }
+  .fact dd { margin: 0; flex: 1; min-width: 0; font: 500 15px/1.35 var(--mono); overflow-wrap: anywhere; user-select: all; }
+  .copy { flex: none; border: 0; background: none; color: var(--accent-text); font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 4px; }
+  .notes { margin: 14px 0 0; white-space: pre-wrap; color: var(--ink); }
+  .reminder {
+    margin-top: 14px; padding: 12px 14px; border-radius: 12px;
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px;
+    background: var(--sunk); color: var(--muted); font-size: 14px;
+  }
+  .reminder.due { background: var(--warn-soft); color: var(--warn); }
+  .reminder strong { color: inherit; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .actions .spacer { flex: 1; }
+
+  /* forms */
+  form.f { display: grid; gap: 14px; margin-top: 16px; }
+  .grid2 { display: grid; gap: 14px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 480px) { .grid2 { grid-template-columns: 1fr; } }
+  .field { display: grid; gap: 5px; min-width: 0; }
+  .field label, .legend { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 10px 12px;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: var(--surface); font-size: 16px;
+  }
+  .field textarea { resize: vertical; min-height: 84px; }
+  .field .mono { font-family: var(--mono); font-size: 15px; }
+  .cat-pick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .box { padding: 12px; border-radius: 12px; background: var(--sunk); display: grid; gap: 10px; }
+  .box .legend { color: var(--ink); }
+  .photo-field { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .photo-field img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; }
+  .file-btn { position: relative; overflow: hidden; }
+  .file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+  .form-error { color: var(--danger); font-size: 14px; margin: 0; }
+
+  .toast {
+    position: fixed; left: 50%; bottom: calc(var(--tabbar-h) + 16px + env(safe-area-inset-bottom, 0px));
+    transform: translateX(-50%); z-index: 60;
+    background: var(--ink); color: var(--bg);
+    padding: 10px 16px; border-radius: 10px; font-weight: 600; font-size: 14px;
+    box-shadow: var(--shadow); max-width: calc(100% - 32px);
+  }
+</style>
+
+<div class="wrap">
+  <div class="brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>
+    HomeBase
+  </div>
+  <main id="view"></main>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <div class="tabbar-inner" id="tabs"></div>
+</nav>
+
+<div class="sheet" id="sheet" hidden>
+  <div class="sheet-scrim" data-action="close-sheet"></div>
+  <div class="sheet-panel" id="sheet-panel" role="dialog" aria-modal="true"></div>
+</div>
+
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(() => {
+  // ---------------------------------------------------------------- config
+  const CATEGORIES = {
+    PAINT: { label: "Paint", name: "Living room walls", fields: [
+      ["color", "Color name / code", "Agreeable Gray SW 7029"],
+      ["brand", "Brand", "Sherwin-Williams"],
+      ["spec", "Sheen / finish", "Eggshell"],
+      ["model", "Product line", "Duration Interior"]] },
+    FILTER: { label: "Filters", name: "Furnace filter", months: 3, fields: [
+      ["size", "Size", "16x25x1"],
+      ["spec", "Rating", "MERV 11"],
+      ["brand", "Brand", "Filtrete"],
+      ["model", "Part #", "UR01-4"]] },
+    LIGHT_BULB: { label: "Light bulbs", name: "Kitchen recessed lights", fields: [
+      ["size", "Shape / base", "BR30, E26"],
+      ["spec", "Wattage / lumens", "9W LED (65W equiv.)"],
+      ["color", "Color temperature", "2700K soft white"],
+      ["brand", "Brand", "Philips"],
+      ["model", "Part # / quantity", "6 bulbs, dimmable"]] },
+    APPLIANCE: { label: "Appliances", name: "Dishwasher", fields: [
+      ["brand", "Brand", "Bosch"],
+      ["model", "Model #", "SHX878ZD5N"],
+      ["spec", "Serial #", "FD 9912 00123"],
+      ["size", "Size / capacity", ""]] },
+    PLUMBING: { label: "Plumbing", name: "Water heater", fields: [
+      ["brand", "Brand", "Rheem"],
+      ["model", "Model #", ""],
+      ["size", "Size / capacity", "50 gal"],
+      ["spec", "Part / cartridge #", "Moen 1225"]] },
+    ELECTRICAL: { label: "Electrical", name: "Garage outlets", fields: [
+      ["spec", "Breaker / circuit #", "Panel A, #14"],
+      ["size", "Amperage", "20A"],
+      ["brand", "Brand", ""],
+      ["model", "Model / part #", ""]] },
+    FLOORING: { label: "Flooring", name: "Main floor hardwood", fields: [
+      ["spec", "Material", "Engineered oak"],
+      ["color", "Color / style", "Natural Oak"],
+      ["brand", "Brand", ""],
+      ["size", "Plank / tile size", "7.5\" wide"]] },
+    OTHER: { label: "Other", name: "Garage door opener", fields: [
+      ["brand", "Brand", ""],
+      ["model", "Model / part #", ""],
+      ["size", "Size", ""],
+      ["color", "Color", ""],
+      ["spec", "Details", ""]] },
+  };
+  const CAT_KEYS = Object.keys(CATEGORIES);
+  const DETAIL_KEYS = ["brand", "model", "size", "color", "spec"];
+  const COMMON_ROOMS = ["Kitchen", "Living room", "Primary bedroom", "Bathroom", "Basement", "Garage", "Exterior", "Whole house"];
+  const PRIORITIES = { urgent: { label: "Urgent", rank: 0 }, soon: { label: "Soon", rank: 1 }, someday: { label: "Someday", rank: 2 } };
+
+  const ICON = {
+    home: '<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',
+    projects: '<path d="M4 20h16"/><path d="M6 20V9l6-4 6 4v11"/><path d="M10 20v-5h4v5"/><path d="M15 3l3 3"/>',
+    tips: '<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z"/>',
+    fix: '<path d="M14.7 6.3a4 4 0 00-5.2 5.2L4 17l3 3 5.5-5.5a4 4 0 005.2-5.2l-2.6 2.6-2.4-.6-.6-2.4z"/>',
+    search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    x: '<path d="M6 6l12 12M18 6L6 18"/>',
+    check: '<path d="M5 12.5l4.5 4.5L19 7.5"/>',
+    camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  };
+  const icon = (name, sw = 1.8) =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[name]}</svg>`;
+
+  const TABS = [
+    { id: "home", label: "My home", icon: "home" },
+    { id: "projects", label: "Projects", icon: "projects" },
+    { id: "tips", label: "Tips & tricks", icon: "tips" },
+    { id: "fix", label: "To fix", icon: "fix" },
+  ];
+
+  // ---------------------------------------------------------------- state
+  const state = {
+    view: "home",
+    q: "",
+    cat: "",
+    ready: false,
+    offline: false,
+    data: { items: [], projects: [], tips: [], fixes: [] },
+  };
+  let db = null;
+  let assets = null;
+
+  // ---------------------------------------------------------------- helpers
+  const $ = (sel, root = document) => root.querySelector(sel);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const todayStr = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  };
+  const parseDay = (s) => {
+    if (!s) return null;
+    const [y, m, d] = s.split("-").map(Number);
+    return y ? new Date(y, m - 1, d) : null;
+  };
+  const fmtDay = (s) => {
+    const d = typeof s === "string" ? parseDay(s) : s;
+    return d ? d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }) : "";
+  };
+  const photoUrl = (id) => "/_blob/" + id;
+
+  function nextDue(item) {
+    const last = parseDay(item.lastReplaced);
+    if (!last || !item.replaceEveryMonths) return null;
+    last.setMonth(last.getMonth() + item.replaceEveryMonths);
+    return last;
+  }
+  const isDue = (item) => {
+    const due = nextDue(item);
+    return !!due && due.getTime() <= Date.now();
+  };
+  const summary = (item) =>
+    (CATEGORIES[item.category] || CATEGORIES.OTHER).fields.map(([k]) => item[k]).filter(Boolean).slice(0, 3).join(" · ");
+
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.hidden = false;
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => (el.hidden = true), 2600);
+  }
+
+  function rooms() {
+    const used = [...new Set(state.data.items.concat(state.data.projects, state.data.fixes).map((x) => x.room).filter(Boolean))].sort();
+    return used.concat(COMMON_ROOMS.filter((r) => !used.includes(r)));
+  }
+
+  // ---------------------------------------------------------------- storage
+  const COLLECTIONS = ["items", "projects", "tips", "fixes"];
+
+  async function save(coll, id, data) {
+    if (!db) throw new Error("offline");
+    const now = Date.now();
+    if (id) {
+      const prev = state.data[coll].find((x) => x.id === id) || {};
+      const { id: _drop, ...rest } = prev;
+      await db.doc(`${coll}/${id}`).set({ ...rest, ...data, updatedAt: now });
+      return id;
+    }
+    const ref = await db.collection(coll).add({ ...data, createdAt: now, updatedAt: now });
+    return ref.id;
+  }
+  async function remove(coll, id) {
+    const prev = state.data[coll].find((x) => x.id === id);
+    await db.doc(`${coll}/${id}`).delete();
+    if (prev?.photo && assets) assets.delete(prev.photo).catch(() => {});
+  }
+
+  async function shrinkImage(file) {
+    try {
+      const bmp = await createImageBitmap(file);
+      const scale = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+      const c = document.createElement("canvas");
+      c.width = Math.round(bmp.width * scale);
+      c.height = Math.round(bmp.height * scale);
+      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
+      return await new Promise((r) => c.toBlob((b) => r(b || file), "image/jpeg", 0.85));
+    } catch {
+      return file;
+    }
+  }
+  async function uploadPhoto(file) {
+    const blob = await shrinkImage(file);
+    const type = ["image/jpeg", "image/png", "image/webp", "image/gif"].includes(blob.type) ? blob.type : "image/jpeg";
+    const res = await assets.upload(blob, { type });
+    return res.id;
+  }
+
+  // Shared photo handling for forms: returns the photo id to store.
+  async function resolvePhoto(form, prevId) {
+    const input = form.querySelector('input[type="file"]');
+    const removed = form.dataset.photoRemoved === "1";
+    const file = input?.files?.[0];
+    if (file && assets) {
+      const id = await uploadPhoto(file);
+      return { id, drop: prevId || null };
+    }
+    if (removed) return { id: null, drop: prevId || null };
+    return { id: prevId || null, drop: null };
+  }
+
+  function photoField(prevId) {
+    if (!assets) return "";
+    return `
+      <div class="field">
+        <span class="legend">Photo</span>
+        <div class="photo-field" id="photo-field">
+          ${prevId ? `<img src="${photoUrl(prevId)}" alt="">` : ""}
+          <span class="btn btn-quiet file-btn">${icon("camera")} ${prevId ? "Replace photo" : "Add photo"}
+            <input type="file" accept="image/*" id="photo-input" aria-label="Choose a photo">
+          </span>
+          ${prevId ? `<button type="button" class="btn btn-quiet" data-action="photo-remove">Remove</button>` : ""}
+        </div>
+      </div>`;
+  }
+  function wirePhotoField(form) {
+    const input = form.querySelector("#photo-input");
+    if (!input) return;
+    input.addEventListener("change", () => {
+      const f = input.files?.[0];
+      if (!f) return;
+      form.dataset.photoRemoved = "0";
+      let img = form.querySelector("#photo-field img");
+      if (!img) {
+        img = document.createElement("img");
+        img.alt = "";
+        form.querySelector("#photo-field").prepend(img);
+      }
+      img.src = URL.createObjectURL(f);
+    });
+  }
+
+  function saveErrorMessage(e) {
+    if (e?.code === "unsupported_type") return "That photo format isn't supported. Try a JPG or PNG.";
+    if (e?.code === "too_large") return "That photo is too large. Try a smaller one.";
+    if (e?.code === "quota_exceeded" || e?.code === "quota_or_state") return "Storage is full. Delete something you no longer need, then try again.";
+    if (e?.message === "offline") return "Storage isn't connected, so this can't be saved right now.";
+    return "Couldn't save. Check your connection and try again.";
+  }
+
+  // ---------------------------------------------------------------- views
+  function renderTabs() {
+    const due = state.data.items.filter(isDue).length;
+    const openFixes = state.data.fixes.filter((f) => !f.done).length;
+    $("#tabs").innerHTML = TABS.map((t) => {
+      const badge = t.id === "home" && due ? `<span class="badge">${due}</span>`
+        : t.id === "fix" && openFixes ? `<span class="badge" style="background:var(--muted)">${openFixes}</span>` : "";
+      return `<button class="tab" data-tab="${t.id}" ${state.view === t.id ? 'aria-current="page"' : ""}>
+        <span class="tab-icon">${icon(t.icon)}${badge}</span>${t.label}</button>`;
+    }).join("");
+  }
+
+  // Each view renders a fixed head once (so inputs keep focus) and a body that re-renders on data changes.
+  function renderView() {
+    const v = $("#view");
+    if (state.view === "home") {
+      v.innerHTML = `
+        <div class="view-head">
+          <div><h1>My home</h1><div class="meta-line" id="home-count"></div></div>
+          <button class="btn btn-primary" data-action="new-item">${icon("plus", 2.2)} Add</button>
+        </div>
+        <div class="search">${icon("search")}
+          <input id="q" type="search" autocomplete="off" placeholder="Filter size, paint code, kitchen bulbs…" value="${esc(state.q)}" aria-label="Search your home">
+        </div>
+        <div id="body"></div>`;
+    } else if (state.view === "projects") {
+      v.innerHTML = `
+        <div class="view-head">
+          <div><h1>Projects</h1><p class="lede">A record of work done on the house: what, when, and what it cost.</p></div>
+          <button class="btn btn-primary" data-action="new-project">${icon("plus", 2.2)} Add</button>
+        </div>
+        <div id="body"></div>`;
+    } else if (state.view === "tips") {
+      v.innerHTML = `
+        <div class="view-head">
+          <div><h1>Tips &amp; tricks</h1><p class="lede">Things you've learned about this house and want to remember.</p></div>
+          <button class="btn btn-primary" data-action="new-tip">${icon("plus", 2.2)} Add</button>
+        </div>
+        <div id="body"></div>`;
+    } else {
+      v.innerHTML = `
+        <div class="view-head">
+          <div><h1>To fix</h1><p class="lede">The running list of things around the house that need attention.</p></div>
+        </div>
+        <form class="quick" id="quick-fix">
+          <input id="quick-fix-input" placeholder="What needs fixing?" autocomplete="off" aria-label="What needs fixing?" maxlength="200">
+          <button class="btn btn-primary" type="submit">Add</button>
+        </form>
+        <div id="body"></div>`;
+    }
+    renderBody();
+    renderTabs();
+  }
+
+  function renderBody() {
+    const body = $("#body");
+    if (!body) return;
+    let html = "";
+    if (state.offline) {
+      html += `<div class="banner">Storage isn't available in this view, so nothing you add here will be saved.</div>`;
+    }
+    if (!state.ready && !state.offline) {
+      body.innerHTML = `<p class="none">Loading your house…</p>`;
+      return;
+    }
+    if (state.view === "home") html += homeBody();
+    else if (state.view === "projects") html += projectsBody();
+    else if (state.view === "tips") html += tipsBody();
+    else html += fixBody();
+    body.innerHTML = html;
+    renderTabs();
+  }
+
+  function itemRow(item, extra = "") {
+    const cat = CATEGORIES[item.category] || CATEGORIES.OTHER;
+    return `<button class="row" data-action="open-item" data-id="${esc(item.id)}">
+      ${item.photo ? `<img class="thumb" src="${photoUrl(item.photo)}" alt="" loading="lazy">` : ""}
+      <span class="row-main">
+        <span class="row-title">${esc(item.name)}</span>
+        <span class="row-spec">${esc(summary(item) || cat.label)}</span>
+      </span>
+      ${isDue(item) ? `<span class="pill due">Due</span>` : `<span class="tag">${esc(cat.label.replace(/s$/, ""))}</span>`}
+      ${extra}
+    </button>`;
+  }
+
+  function homeBody() {
+    const all = state.data.items;
+    const count = $("#home-count");
+    if (count) {
+      const due = all.filter(isDue).length;
+      count.textContent = all.length ? `${all.length} ${all.length === 1 ? "thing" : "things"} on file${due ? ` · ${due} due` : ""}` : "";
+    }
+
+    if (all.length === 0) {
+      const examples = [
+        { id: "", name: "Furnace filter", category: "FILTER", size: "16x25x1", spec: "MERV 11", brand: "Filtrete" },
+        { id: "", name: "Living room walls", category: "PAINT", color: "Agreeable Gray SW 7029", brand: "Sherwin-Williams", spec: "Eggshell" },
+        { id: "", name: "Kitchen recessed lights", category: "LIGHT_BULB", size: "BR30, E26", spec: "9W LED", color: "2700K" },
+      ];
+      return `
+        <div class="empty">
+          <h2>Start with the things you always forget</h2>
+          <p>Save a detail once and look it up from the store aisle later. Add a photo of the label so you never have to guess.</p>
+          <div class="starters">
+            <button class="btn btn-quiet" data-action="new-item" data-cat="FILTER" data-name="Furnace filter">Furnace filter size</button>
+            <button class="btn btn-quiet" data-action="new-item" data-cat="PAINT">A paint color</button>
+            <button class="btn btn-quiet" data-action="new-item" data-cat="LIGHT_BULB">Light bulbs in a room</button>
+            <button class="btn btn-quiet" data-action="new-item" data-cat="APPLIANCE">An appliance model #</button>
+          </div>
+          <div class="examples" aria-hidden="true">
+            <div class="example-tag">Example of how it looks</div>
+            <div class="list">${examples.map((e) => itemRow(e)).join("")}</div>
+          </div>
+        </div>`;
+    }
+
+    const counts = {};
+    all.forEach((i) => (counts[i.category] = (counts[i.category] || 0) + 1));
+    let html = `<div class="chips" role="group" aria-label="Category">
+      <button class="chip" data-action="cat" data-cat="" aria-pressed="${!state.cat}">All<span class="n">${all.length}</span></button>
+      ${CAT_KEYS.filter((k) => counts[k]).map((k) => `<button class="chip" data-action="cat" data-cat="${k}" aria-pressed="${state.cat === k}">${CATEGORIES[k].label}<span class="n">${counts[k]}</span></button>`).join("")}
+    </div>`;
+
+    const q = state.q.trim().toLowerCase();
+    const items = all.filter((i) => {
+      if (state.cat && i.category !== state.cat) return false;
+      if (!q) return true;
+      const label = (CATEGORIES[i.category] || CATEGORIES.OTHER).label.toLowerCase();
+      const hay = [i.name, i.room, i.whereToBuy, i.notes, ...DETAIL_KEYS.map((k) => i[k]), label].filter(Boolean).join(" ").toLowerCase();
+      return q.split(/\s+/).every((w) => hay.includes(w) || label.startsWith(w.replace(/s$/, "")));
+    });
+
+    const due = items.filter(isDue);
+    if (due.length && !q) {
+      html += `<div class="banner"><strong>Due for replacement:</strong> ${due.map((i) =>
+        `<button data-action="open-item" data-id="${esc(i.id)}">${esc(i.name)}</button>`).join(", ")}</div>`;
+    }
+
+    if (!items.length) {
+      return html + `<p class="none">Nothing matches “${esc(state.q)}”. <button class="btn btn-quiet" data-action="clear-search">Clear search</button></p>`;
+    }
+
+    const byRoom = new Map();
+    items
+      .slice()
+      .sort((a, b) => (a.name || "").localeCompare(b.name || ""))
+      .forEach((i) => {
+        const r = i.room || "Unassigned";
+        if (!byRoom.has(r)) byRoom.set(r, []);
+        byRoom.get(r).push(i);
+      });
+    const roomNames = [...byRoom.keys()].sort((a, b) => (a === "Unassigned") - (b === "Unassigned") || a.localeCompare(b));
+    html += `<div class="stack">${roomNames.map((r) => `
+      <section>
+        <h2 class="section-label">${esc(r)}<span>${byRoom.get(r).length}</span></h2>
+        <div class="list">${byRoom.get(r).map((i) => itemRow(i)).join("")}</div>
+      </section>`).join("")}</div>`;
+    return html;
+  }
+
+  function projectsBody() {
+    const list = state.data.projects.slice().sort((a, b) => (b.date || "").localeCompare(a.date || "") || b.createdAt - a.createdAt);
+    if (!list.length) {
+      return `<div class="empty"><h2>Keep a log of work on the house</h2>
+        <p>Record what you did, when, and what it cost. It's handy for warranty claims, taxes, and whoever buys the house next.</p>
+        <div class="starters"><button class="btn btn-quiet" data-action="new-project">Log a project</button></div></div>`;
+    }
+    const total = list.reduce((s, p) => s + (Number(p.cost) || 0), 0);
+    return `${total ? `<p class="meta-line">${list.length} projects · $${total.toLocaleString(undefined, { maximumFractionDigits: 0 })} recorded</p>` : ""}
+      <div class="cards">${list.map((p) => `
+      <button class="card" data-action="open-project" data-id="${esc(p.id)}">
+        <span class="when">${esc([fmtDay(p.date), p.room, p.cost ? "$" + Number(p.cost).toLocaleString() : ""].filter(Boolean).join(" · "))}</span>
+        <h3>${esc(p.title)}</h3>
+        ${p.notes ? `<p>${esc(p.notes)}</p>` : ""}
+        ${p.photo ? `<img class="thumb" src="${photoUrl(p.photo)}" alt="" loading="lazy">` : ""}
+      </button>`).join("")}</div>`;
+  }
+
+  function tipsBody() {
+    const list = state.data.tips.slice().sort((a, b) => b.createdAt - a.createdAt);
+    if (!list.length) {
+      return `<div class="empty"><h2>Notes for future you</h2>
+        <p>The water shutoff is behind the dryer. The back door sticks in summer; lift and push. Write it down here.</p>
+        <div class="starters"><button class="btn btn-quiet" data-action="new-tip">Add a tip</button></div></div>`;
+    }
+    return `<div class="cards">${list.map((t) => `
+      <button class="card" data-action="open-tip" data-id="${esc(t.id)}">
+        <h3>${esc(t.title)}</h3>
+        ${t.body ? `<p>${esc(t.body)}</p>` : ""}
+      </button>`).join("")}</div>`;
+  }
+
+  function fixRow(f) {
+    const p = PRIORITIES[f.priority] || PRIORITIES.soon;
+    const meta = f.done ? `Done ${fmtDay(f.doneOn)}` : [f.room, f.notes].filter(Boolean).join(" · ");
+    return `<div class="fix ${f.done ? "done" : ""}">
+      <button class="check" data-action="toggle-fix" data-id="${esc(f.id)}" aria-pressed="${!!f.done}" aria-label="${f.done ? "Mark not done" : "Mark done"}: ${esc(f.title)}">
+        <span>${f.done ? icon("check", 3) : ""}</span>
+      </button>
+      <button class="row" data-action="open-fix" data-id="${esc(f.id)}">
+        <span class="row-main">
+          <span class="row-title">${esc(f.title)}</span>
+          ${meta ? `<span class="row-spec" style="font-family:var(--body)">${esc(meta)}</span>` : ""}
+        </span>
+        ${f.done ? "" : `<span class="pill ${f.priority || "soon"}">${p.label}</span>`}
+      </button>
+    </div>`;
+  }
+
+  function fixBody() {
+    const open = state.data.fixes.filter((f) => !f.done)
+      .sort((a, b) => (PRIORITIES[a.priority]?.rank ?? 1) - (PRIORITIES[b.priority]?.rank ?? 1) || b.createdAt - a.createdAt);
+    const done = state.data.fixes.filter((f) => f.done).sort((a, b) => (b.doneOn || "").localeCompare(a.doneOn || ""));
+    let html = open.length
+      ? `<div class="list" style="margin-top:16px">${open.map(fixRow).join("")}</div>`
+      : `<p class="none">${done.length ? "Nothing left to fix. Nice work." : "Add the first thing that needs attention above."}</p>`;
+    if (done.length) {
+      html += `<details class="done-list"><summary>Done (${done.length})</summary>
+        <div class="list">${done.map(fixRow).join("")}</div></details>`;
+    }
+    return html;
+  }
+
+  // ---------------------------------------------------------------- sheet
+  let lastFocus = null;
+  function openSheet(html, mount) {
+    lastFocus = document.activeElement;
+    const panel = $("#sheet-panel");
+    panel.innerHTML = html;
+    $("#sheet").hidden = false;
+    panel.scrollTop = 0;
+    mount?.(panel);
+    const first = panel.querySelector("[autofocus]") || panel.querySelector(".x");
+    first?.focus();
+  }
+  function closeSheet() {
+    $("#sheet").hidden = true;
+    $("#sheet-panel").innerHTML = "";
+    lastFocus?.focus?.();
+  }
+  const sheetTop = (eyebrow, title) => `
+    <div class="sheet-top">
+      <div>${eyebrow ? `<div class="eyebrow">${esc(eyebrow)}</div>` : ""}<h2>${esc(title)}</h2></div>
+      <button class="x" data-action="close-sheet" aria-label="Close">${icon("x", 2)}</button>
+    </div>`;
+
+  // Two-tap delete, since the page can't show a confirm dialog.
+  function armDelete(btn, run) {
+    if (btn.classList.contains("armed")) return run();
+    btn.classList.add("armed");
+    btn.textContent = "Tap again to delete";
+    setTimeout(() => {
+      if (!btn.isConnected) return;
+      btn.classList.remove("armed");
+      btn.textContent = "Delete";
+    }, 3500);
+  }
+
+  // ---- items
+  function openItem(id) {
+    const item = state.data.items.find((i) => i.id === id);
+    if (!item) return;
+    const cat = CATEGORIES[item.category] || CATEGORIES.OTHER;
+    const facts = cat.fields.filter(([k]) => item[k]).map(([k, label]) => [label, item[k]]);
+    if (item.whereToBuy) facts.push(["Where to buy", item.whereToBuy]);
+    const due = nextDue(item);
+    const overdue = isDue(item);
+    openSheet(`
+      ${sheetTop([cat.label.replace(/s$/, ""), item.room].filter(Boolean).join(" · "), item.name)}
+      ${item.photo ? `<img class="photo" src="${photoUrl(item.photo)}" alt="Photo of ${esc(item.name)}">` : ""}
+      ${facts.length ? `<dl class="facts">${facts.map(([l, v]) => `
+        <div class="fact"><dt>${esc(l)}</dt><dd>${esc(v)}</dd><button class="copy" data-action="copy" data-value="${esc(v)}">Copy</button></div>`).join("")}</dl>` : ""}
+      ${item.notes ? `<p class="notes">${esc(item.notes)}</p>` : ""}
+      ${item.lastReplaced || due ? `
+        <div class="reminder ${overdue ? "due" : ""}">
+          <span>${item.lastReplaced ? `Last done ${fmtDay(item.lastReplaced)}. ` : ""}${due ? `<strong>${overdue ? "Due now" : "Next due " + fmtDay(due)}</strong>` : ""}</span>
+          ${item.replaceEveryMonths ? `<button class="btn btn-primary" data-action="replaced" data-id="${esc(item.id)}">Replaced it today</button>` : ""}
+        </div>` : ""}
+      <div class="actions">
+        <button class="btn" data-action="edit-item" data-id="${esc(item.id)}">Edit</button>
+        <span class="spacer"></span>
+        <button class="btn btn-danger" data-action="delete" data-coll="items" data-id="${esc(item.id)}">Delete</button>
+      </div>`);
+  }
+
+  function itemForm(item, preset = {}) {
+    const editing = !!item;
+    const values = item || { category: preset.cat || "PAINT", name: preset.name || "" };
+    const startCat = values.category in CATEGORIES ? values.category : "OTHER";
+    const months = editing ? item.replaceEveryMonths ?? "" : CATEGORIES[startCat].months ?? "";
+    openSheet(`
+      ${sheetTop(editing ? "Edit" : "Add to my home", editing ? item.name : "New item")}
+      <form class="f" id="item-form" novalidate>
+        <div class="field">
+          <span class="legend" id="cat-legend">Category</span>
+          <div class="cat-pick" role="radiogroup" aria-labelledby="cat-legend">
+            ${CAT_KEYS.map((k) => `<button type="button" class="chip" role="radio" data-pick-cat="${k}" aria-pressed="${k === startCat}" aria-checked="${k === startCat}">${CATEGORIES[k].label}</button>`).join("")}
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="f-name">Name</label>
+            <input id="f-name" name="name" required maxlength="120" value="${esc(values.name)}" ${editing ? "" : "autofocus"}></div>
+          <div class="field"><label for="f-room">Room / location</label>
+            <input id="f-room" name="room" list="room-list" maxlength="60" value="${esc(values.room)}" placeholder="Kitchen, Basement…">
+            <datalist id="room-list">${rooms().map((r) => `<option value="${esc(r)}"></option>`).join("")}</datalist></div>
+          ${DETAIL_KEYS.map((k) => `<div class="field" data-detail="${k}"><label for="f-${k}"></label>
+            <input id="f-${k}" name="${k}" class="mono" maxlength="160" value="${esc(values[k])}"></div>`).join("")}
+          <div class="field"><label for="f-where">Where to buy</label>
+            <input id="f-where" name="whereToBuy" maxlength="200" value="${esc(values.whereToBuy)}" placeholder="Home Depot, aisle 12"></div>
+        </div>
+        <div class="box">
+          <span class="legend">Replacement reminder (optional)</span>
+          <div class="grid2">
+            <div class="field"><label for="f-last">Last replaced or done</label>
+              <input id="f-last" name="lastReplaced" type="date" value="${esc(values.lastReplaced)}"></div>
+            <div class="field"><label for="f-months">Every how many months</label>
+              <input id="f-months" name="replaceEveryMonths" type="number" min="1" step="1" inputmode="numeric" value="${esc(months)}" placeholder="3"></div>
+          </div>
+        </div>
+        <div class="field"><label for="f-notes">Notes</label>
+          <textarea id="f-notes" name="notes" maxlength="2000" placeholder="Leftover can is on the garage shelf.">${esc(values.notes)}</textarea></div>
+        ${photoField(item?.photo)}
+        <p class="form-error" id="form-error" hidden></p>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">${editing ? "Save changes" : "Save"}</button>
+          <button class="btn btn-quiet" type="button" data-action="close-sheet">Cancel</button>
+        </div>
+      </form>`, (panel) => {
+      const form = panel.querySelector("#item-form");
+      let cat = startCat;
+      const applyCat = () => {
+        const conf = CATEGORIES[cat];
+        panel.querySelectorAll("[data-pick-cat]").forEach((b) => {
+          const on = b.dataset.pickCat === cat;
+          b.setAttribute("aria-pressed", on);
+          b.setAttribute("aria-checked", on);
+        });
+        DETAIL_KEYS.forEach((k) => {
+          const wrap = panel.querySelector(`[data-detail="${k}"]`);
+          const idx = conf.fields.findIndex(([f]) => f === k);
+          wrap.hidden = idx < 0;
+          if (idx >= 0) {
+            wrap.style.order = String(idx + 2);
+            wrap.querySelector("label").textContent = conf.fields[idx][1];
+            wrap.querySelector("input").placeholder = conf.fields[idx][2] || "";
+          }
+        });
+        panel.querySelector("#f-where").parentElement.style.order = "20";
+        panel.querySelector("#f-name").placeholder = conf.name;
+      };
+      applyCat();
+      panel.querySelectorAll("[data-pick-cat]").forEach((b) =>
+        b.addEventListener("click", () => {
+          cat = b.dataset.pickCat;
+          applyCat();
+          if (!editing) panel.querySelector("#f-months").value = CATEGORIES[cat].months ?? "";
+        }));
+      wirePhotoField(form);
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const err = panel.querySelector("#form-error");
+        const name = String(fd.get("name") || "").trim();
+        const monthsStr = String(fd.get("replaceEveryMonths") || "").trim();
+        const monthsN = monthsStr ? Number(monthsStr) : null;
+        err.hidden = true;
+        if (!name) { err.textContent = "Give this item a name."; err.hidden = false; return; }
+        if (monthsN !== null && (!Number.isInteger(monthsN) || monthsN < 1)) {
+          err.textContent = "Use a whole number of months, like 3."; err.hidden = false; return;
+        }
+        const data = { category: cat, name, replaceEveryMonths: monthsN };
+        ["room", "whereToBuy", "notes", "lastReplaced", ...DETAIL_KEYS].forEach((k) => {
+          data[k] = String(fd.get(k) || "").trim() || null;
+        });
+        const btn = form.querySelector('[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        try {
+          const photo = await resolvePhoto(form, item?.photo);
+          data.photo = photo.id;
+          const id = await save("items", item?.id, data);
+          if (photo.drop) assets?.delete(photo.drop).catch(() => {});
+          toast(editing ? "Saved" : "Added to your home");
+          openItemWhenReady(id);
+        } catch (e2) {
+          err.textContent = saveErrorMessage(e2);
+          err.hidden = false;
+          btn.disabled = false;
+          btn.textContent = editing ? "Save changes" : "Save";
+        }
+      });
+    });
+  }
+
+  // After a save the snapshot may land a moment later; wait briefly so the detail view shows new data.
+  function openItemWhenReady(id, tries = 0) {
+    const item = state.data.items.find((i) => i.id === id);
+    if (item || tries > 20) return item ? openItem(id) : closeSheet();
+    setTimeout(() => openItemWhenReady(id, tries + 1), 100);
+  }
+
+  // ---- generic record forms: projects, tips, fixes
+  const FORMS = {
+    projects: {
+      noun: "project",
+      fields: [
+        { k: "title", label: "What did you do?", required: true, ph: "Refinished the deck", full: true },
+        { k: "date", label: "When", type: "date" },
+        { k: "room", label: "Where", list: true, ph: "Backyard" },
+        { k: "cost", label: "Cost ($)", type: "number", ph: "180" },
+        { k: "notes", label: "Notes", type: "textarea", ph: "Materials, who did it, what you'd do differently…", full: true },
+      ],
+      photo: true,
+    },
+    tips: {
+      noun: "tip",
+      fields: [
+        { k: "title", label: "Tip", required: true, ph: "Water shutoff is behind the dryer", full: true },
+        { k: "body", label: "Details", type: "textarea", ph: "Anything that helps next time…", full: true },
+      ],
+    },
+    fixes: {
+      noun: "item",
+      fields: [
+        { k: "title", label: "What needs fixing?", required: true, ph: "Back door sticks", full: true },
+        { k: "room", label: "Where", list: true, ph: "Kitchen" },
+        { k: "priority", label: "How soon", type: "select", options: Object.entries(PRIORITIES).map(([v, p]) => [v, p.label]) },
+        { k: "notes", label: "Notes", type: "textarea", ph: "What you've noticed, parts needed…", full: true },
+      ],
+    },
+  };
+
+  function recordForm(coll, rec) {
+    const conf = FORMS[coll];
+    const editing = !!rec;
+    const v = rec || (coll === "projects" ? { date: todayStr() } : coll === "fixes" ? { priority: "soon" } : {});
+    const fieldHtml = (f, i) => {
+      const id = `r-${f.k}`;
+      const auto = !editing && i === 0 ? "autofocus" : "";
+      let input;
+      if (f.type === "textarea") input = `<textarea id="${id}" name="${f.k}" maxlength="4000" placeholder="${esc(f.ph)}">${esc(v[f.k])}</textarea>`;
+      else if (f.type === "select") input = `<select id="${id}" name="${f.k}">${f.options.map(([val, l]) => `<option value="${val}" ${v[f.k] === val ? "selected" : ""}>${l}</option>`).join("")}</select>`;
+      else input = `<input id="${id}" name="${f.k}" type="${f.type || "text"}" ${f.type === "number" ? 'min="0" step="any" inputmode="decimal"' : 'maxlength="160"'} ${f.list ? 'list="room-list"' : ""} value="${esc(v[f.k])}" placeholder="${esc(f.ph || "")}" ${auto}>`;
+      return `<div class="field" ${f.full ? 'style="grid-column:1/-1"' : ""}><label for="${id}">${f.label}</label>${input}</div>`;
+    };
+    openSheet(`
+      ${sheetTop(editing ? "Edit" : "New " + conf.noun, editing ? rec.title : TABS.find((t) => t.id === (coll === "fixes" ? "fix" : coll)).label)}
+      <form class="f" id="rec-form" novalidate>
+        <div class="grid2">${conf.fields.map(fieldHtml).join("")}</div>
+        <datalist id="room-list">${rooms().map((r) => `<option value="${esc(r)}"></option>`).join("")}</datalist>
+        ${conf.photo ? photoField(rec?.photo) : ""}
+        <p class="form-error" id="form-error" hidden></p>
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">${editing ? "Save changes" : "Save"}</button>
+          <button class="btn btn-quiet" type="button" data-action="close-sheet">Cancel</button>
+          ${editing ? `<span class="spacer"></span><button class="btn btn-danger" type="button" data-action="delete" data-coll="${coll}" data-id="${esc(rec.id)}">Delete</button>` : ""}
+        </div>
+      </form>`, (panel) => {
+      const form = panel.querySelector("#rec-form");
+      wirePhotoField(form);
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        const err = panel.querySelector("#form-error");
+        const data = {};
+        conf.fields.forEach((f) => {
+          const raw = String(fd.get(f.k) || "").trim();
+          data[f.k] = f.type === "number" ? (raw ? Number(raw) : null) : raw || null;
+        });
+        if (!data.title) { err.textContent = "Add a title first."; err.hidden = false; return; }
+        if (data.cost !== undefined && data.cost !== null && !(data.cost >= 0)) {
+          err.textContent = "Cost should be a number, like 180."; err.hidden = false; return;
+        }
+        const btn = form.querySelector('[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = "Saving…";
+        try {
+          if (conf.photo) {
+            const photo = await resolvePhoto(form, rec?.photo);
+            data.photo = photo.id;
+            await save(coll, rec?.id, data);
+            if (photo.drop) assets?.delete(photo.drop).catch(() => {});
+          } else {
+            await save(coll, rec?.id, data);
+          }
+          toast("Saved");
+          closeSheet();
+        } catch (e2) {
+          err.textContent = saveErrorMessage(e2);
+          err.hidden = false;
+          btn.disabled = false;
+          btn.textContent = editing ? "Save changes" : "Save";
+        }
+      });
+    });
+  }
+
+  function openProject(id) {
+    const p = state.data.projects.find((x) => x.id === id);
+    if (!p) return;
+    const facts = [["When", fmtDay(p.date)], ["Where", p.room], ["Cost", p.cost ? "$" + Number(p.cost).toLocaleString() : ""]].filter(([, v]) => v);
+    openSheet(`
+      ${sheetTop("Project", p.title)}
+      ${p.photo ? `<img class="photo" src="${photoUrl(p.photo)}" alt="Photo of ${esc(p.title)}">` : ""}
+      ${facts.length ? `<dl class="facts">${facts.map(([l, v]) => `<div class="fact"><dt>${l}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
+      ${p.notes ? `<p class="notes">${esc(p.notes)}</p>` : ""}
+      <div class="actions">
+        <button class="btn" data-action="edit-record" data-coll="projects" data-id="${esc(p.id)}">Edit</button>
+        <span class="spacer"></span>
+        <button class="btn btn-danger" data-action="delete" data-coll="projects" data-id="${esc(p.id)}">Delete</button>
+      </div>`);
+  }
+
+  // ---------------------------------------------------------------- events
+  function setView(v) {
+    if (!TABS.some((t) => t.id === v)) v = "home";
+    state.view = v;
+    try { history.replaceState(null, "", "#" + v); } catch {}
+    renderView();
+    window.scrollTo(0, 0);
+  }
+
+  document.addEventListener("click", async (e) => {
+    const tab = e.target.closest("[data-tab]");
+    if (tab) return setView(tab.dataset.tab);
+    const el = e.target.closest("[data-action]");
+    if (!el) return;
+    const { action, id, coll } = el.dataset;
+    switch (action) {
+      case "close-sheet": return closeSheet();
+      case "new-item": return itemForm(null, { cat: el.dataset.cat, name: el.dataset.name });
+      case "open-item": return openItem(id);
+      case "edit-item": return itemForm(state.data.items.find((i) => i.id === id));
+      case "new-project": return recordForm("projects");
+      case "open-project": return openProject(id);
+      case "new-tip": return recordForm("tips");
+      case "open-tip": return recordForm("tips", state.data.tips.find((t) => t.id === id));
+      case "open-fix": return recordForm("fixes", state.data.fixes.find((f) => f.id === id));
+      case "edit-record": return recordForm(coll, state.data[coll].find((x) => x.id === id));
+      case "photo-remove": {
+        const form = el.closest("form");
+        form.dataset.photoRemoved = "1";
+        form.querySelector("#photo-field img")?.remove();
+        const input = form.querySelector("#photo-input");
+        if (input) input.value = "";
+        el.remove();
+        return;
+      }
+      case "cat":
+        state.cat = el.dataset.cat;
+        return renderBody();
+      case "clear-search":
+        state.q = "";
+        state.cat = "";
+        $("#q") && ($("#q").value = "");
+        return renderBody();
+      case "copy": {
+        const value = el.dataset.value;
+        try {
+          await navigator.clipboard.writeText(value);
+          toast("Copied");
+        } catch {
+          const dd = el.parentElement.querySelector("dd");
+          const range = document.createRange();
+          range.selectNodeContents(dd);
+          const sel = getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          toast("Selected. Use your device's Copy.");
+        }
+        return;
+      }
+      case "replaced":
+        try {
+          await save("items", id, { lastReplaced: todayStr() });
+          toast("Marked replaced today");
+          setTimeout(() => openItem(id), 150);
+        } catch (e2) { toast(saveErrorMessage(e2)); }
+        return;
+      case "toggle-fix": {
+        const f = state.data.fixes.find((x) => x.id === id);
+        if (!f) return;
+        try {
+          await save("fixes", id, { done: !f.done, doneOn: f.done ? null : todayStr() });
+          if (!f.done) toast("Nice. Marked done.");
+        } catch (e2) { toast(saveErrorMessage(e2)); }
+        return;
+      }
+      case "delete":
+        return armDelete(el, async () => {
+          try {
+            await remove(coll, id);
+            closeSheet();
+            toast("Deleted");
+          } catch (e2) { toast(saveErrorMessage(e2)); }
+        });
+    }
+  });
+
+  document.addEventListener("input", (e) => {
+    if (e.target.id === "q") {
+      state.q = e.target.value;
+      renderBody();
+    }
+  });
+
+  document.addEventListener("submit", async (e) => {
+    if (e.target.id !== "quick-fix") return;
+    e.preventDefault();
+    const input = $("#quick-fix-input");
+    const title = input.value.trim();
+    if (!title) return;
+    input.value = "";
+    try {
+      await save("fixes", null, { title, priority: "soon", done: false });
+    } catch (e2) {
+      input.value = title;
+      toast(saveErrorMessage(e2));
+    }
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !$("#sheet").hidden) closeSheet();
+  });
+
+  // ---------------------------------------------------------------- boot
+  const initial = (location.hash || "").replace("#", "");
+  state.view = TABS.some((t) => t.id === initial) ? initial : "home";
+  renderView();
+
+  (async () => {
+    const [dbNs, assetsNs] = await Promise.all([
+      window.claude?.use ? window.claude.use("db") : Promise.resolve(null),
+      window.claude?.use ? window.claude.use("assets").catch(() => null) : Promise.resolve(null),
+    ]);
+    db = dbNs;
+    assets = assetsNs;
+    if (!db) {
+      state.offline = true;
+      renderBody();
+      return;
+    }
+    let pending = COLLECTIONS.length;
+    COLLECTIONS.forEach((c) => {
+      let first = true;
+      db.collection(c).onSnapshot(
+        (snap) => {
+          state.data[c] = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          if (first) {
+            first = false;
+            if (--pending === 0) state.ready = true;
+          }
+          if (state.ready) renderBody();
+        },
+        () => {
+          state.offline = true;
+          state.ready = true;
+          renderBody();
+        }
+      );
+    });
+  })();
+})();
+</script>
