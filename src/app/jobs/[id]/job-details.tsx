@@ -1,7 +1,9 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import Link from "next/link";
 import { updateJobDetails, type FormState } from "../actions";
+import CustomerSelect, { type CustomerOption } from "@/components/customer-select";
 
 const inputClass =
   "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
@@ -13,9 +15,16 @@ type JobDetailsData = {
   location: string;
   customerName: string;
   customerContact: string;
+  customerId: string | null;
 };
 
-export default function JobDetails({ job }: { job: JobDetailsData }) {
+export default function JobDetails({
+  job,
+  customers,
+}: {
+  job: JobDetailsData;
+  customers: CustomerOption[];
+}) {
   const [editing, setEditing] = useState(false);
   const boundAction = updateJobDetails.bind(null, job.id);
   const [state, formAction, pending] = useActionState(boundAction, undefined);
@@ -51,7 +60,15 @@ export default function JobDetails({ job }: { job: JobDetailsData }) {
           </div>
           <div>
             <dt className="inline font-medium text-slate-600">Customer: </dt>
-            <dd className="inline">{job.customerName}</dd>
+            <dd className="inline">
+              {job.customerId ? (
+                <Link href={`/customers/${job.customerId}`} className="text-blue-600 hover:underline">
+                  {job.customerName}
+                </Link>
+              ) : (
+                job.customerName
+              )}
+            </dd>
           </div>
           <div>
             <dt className="inline font-medium text-slate-600">Customer contact: </dt>
@@ -64,6 +81,12 @@ export default function JobDetails({ job }: { job: JobDetailsData }) {
 
   return (
     <form action={formAction} className="space-y-3 rounded-lg border border-slate-200 bg-white p-4">
+      <div>
+        <label htmlFor="customerId" className="block text-xs font-medium text-slate-700">
+          Saved customer
+        </label>
+        <CustomerSelect customers={customers} defaultValue={job.customerId} className={inputClass} />
+      </div>
       <div>
         <label htmlFor="jobNumber" className="block text-xs font-medium text-slate-700">
           Job number

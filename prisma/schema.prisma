@@ -47,6 +47,8 @@ model Job {
   updatedAt       DateTime        @updatedAt
   createdBy       User            @relation("JobCreatedBy", fields: [createdById], references: [id])
   createdById     String
+  customer        Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  customerId      String?
   laborEntries    LaborEntry[]
   materialEntries MaterialEntry[]
   purchaseOrders  PurchaseOrder[]
@@ -89,4 +91,73 @@ model PurchaseOrder {
   amount      Float?
   date        DateTime @default(now())
   createdAt   DateTime @default(now())
+}
+
+model Customer {
+  id        String              @id @default(cuid())
+  name      String
+  contact   String?
+  email     String?
+  address   String?
+  notes     String?
+  createdAt DateTime            @default(now())
+  updatedAt DateTime            @updatedAt
+  jobs      Job[]
+  services  ElectricalService[]
+  fixtures  LightingFixture[]
+  circuits  Circuit[]
+  infoItems CustomerInfoItem[]
+}
+
+// A service entrance / main panel at the customer's property.
+model ElectricalService {
+  id           String   @id @default(cuid())
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId   String
+  location     String?
+  amperage     String?
+  voltage      String?
+  phase        String?
+  panelBrand   String?
+  panelModel   String?
+  utilityMeter String?
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model LightingFixture {
+  id           String   @id @default(cuid())
+  customer     Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId   String
+  area         String?
+  fixtureType  String?
+  lampType     String?
+  ballastBrand String?
+  ballastModel String?
+  quantity     String?
+  notes        String?
+  createdAt    DateTime @default(now())
+}
+
+model Circuit {
+  id            String   @id @default(cuid())
+  customer      Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId    String
+  description   String?
+  fedFrom       String?
+  circuitNumber String?
+  breakerSize   String?
+  wireSize      String?
+  notes         String?
+  createdAt     DateTime @default(now())
+}
+
+// Free-form label/value pairs for anything that doesn't have its own section yet.
+model CustomerInfoItem {
+  id         String   @id @default(cuid())
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  customerId String
+  label      String?
+  value      String?
+  createdAt  DateTime @default(now())
 }

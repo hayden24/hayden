@@ -15,6 +15,17 @@ async function requireUser() {
 
 export type FormState = { error?: string; success?: boolean } | undefined;
 
+// Returns the selected customer's id, or null for "no customer" / an id that no longer exists.
+async function readCustomerId(formData: FormData) {
+  const customerId = String(formData.get("customerId") ?? "").trim();
+  if (!customerId) return null;
+  const customer = await prisma.customer.findUnique({
+    where: { id: customerId },
+    select: { id: true },
+  });
+  return customer?.id ?? null;
+}
+
 export async function createJob(
   _prevState: FormState,
   formData: FormData
@@ -27,6 +38,7 @@ export async function createJob(
   const customerContact = String(formData.get("customerContact") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const customerId = await readCustomerId(formData);
 
   if (!jobNumber || !scopeOfWork || !customerName || !customerContact || !location) {
     return {
@@ -43,11 +55,13 @@ export async function createJob(
       customerContact,
       location,
       notes: notes || null,
+      customerId,
       createdById: user.id,
     },
   });
 
   revalidatePath("/");
+  if (customerId) revalidatePath(`/customers/${customerId}`, "layout");
   redirect(`/jobs/${job.id}`);
 }
 
@@ -63,6 +77,7 @@ export async function updateJobDetails(
   const customerName = String(formData.get("customerName") ?? "").trim();
   const customerContact = String(formData.get("customerContact") ?? "").trim();
   const location = String(formData.get("location") ?? "").trim();
+  const customerId = await readCustomerId(formData);
 
   if (!jobNumber || !scopeOfWork || !customerName || !customerContact || !location) {
     return {
@@ -79,12 +94,14 @@ export async function updateJobDetails(
       customerName,
       customerContact,
       location,
+      customerId,
     },
   });
 
   revalidatePath(`/jobs/${jobId}`);
   revalidatePath("/");
   revalidatePath("/assignments/in-progress");
+  revalidatePath("/customers", "layout");
   return { success: true };
 }
 

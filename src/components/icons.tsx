@@ -46,3 +46,47 @@ export function NotesIcon({ className }: IconProps) {
     </svg>
   );
 }
+
+export function BoltIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <path d="M13 3L5 13h6l-1 8 8-10h-6l1-8z" />
+    </svg>
+  );
+}
+
+export function BulbIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <path d="M9 18h6M10 21h4" />
+      <path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0012 3z" />
+    </svg>
+  );
+}
+
+export function BreakerIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <rect x="5" y="3" width="14" height="18" rx="1.5" />
+      <path d="M9 7h2M13 7h2M9 11h2M13 11h2M9 15h2M13 15h2" />
+    </svg>
+  );
+}
+
+export function InfoIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 11v5M12 8h.01" />
+    </svg>
+  );
+}
+
+export function BriefcaseIcon({ className }: IconProps) {
+  return (
+    <svg {...commonProps} className={className}>
+      <rect x="3" y="7" width="18" height="13" rx="1.5" />
+      <path d="M9 7V5h6v2M3 13h18" />
+    </svg>
+  );
+}

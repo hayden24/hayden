@@ -2,15 +2,28 @@
 
 import { useActionState } from "react";
 import { createJob } from "../actions";
+import CustomerSelect, { type CustomerOption } from "@/components/customer-select";
 
 const inputClass =
   "mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500";
 
-export default function NewJobForm() {
+export default function NewJobForm({
+  customers,
+  customer,
+}: {
+  customers: CustomerOption[];
+  customer?: CustomerOption;
+}) {
   const [state, formAction, pending] = useActionState(createJob, undefined);
 
   return (
     <form action={formAction} className="mt-4 space-y-4 rounded-lg border border-slate-200 bg-white p-4">
+      <div>
+        <label htmlFor="customerId" className="block text-sm font-medium text-slate-700">
+          Customer
+        </label>
+        <CustomerSelect customers={customers} defaultValue={customer?.id} className={inputClass} />
+      </div>
       <div>
         <label htmlFor="jobNumber" className="block text-sm font-medium text-slate-700">
           Job number *
@@ -38,6 +51,7 @@ export default function NewJobForm() {
           id="location"
           name="location"
           required
+          defaultValue={customer?.address ?? ""}
           className={inputClass}
           placeholder="123 Main St, Springfield"
         />
@@ -46,7 +60,13 @@ export default function NewJobForm() {
         <label htmlFor="customerName" className="block text-sm font-medium text-slate-700">
           Customer name *
         </label>
-        <input id="customerName" name="customerName" required className={inputClass} />
+        <input
+          id="customerName"
+          name="customerName"
+          required
+          defaultValue={customer?.name ?? ""}
+          className={inputClass}
+        />
       </div>
       <div>
         <label htmlFor="customerContact" className="block text-sm font-medium text-slate-700">
@@ -56,6 +76,7 @@ export default function NewJobForm() {
           id="customerContact"
           name="customerContact"
           required
+          defaultValue={customer?.contact ?? ""}
           className={inputClass}
           placeholder="Name and phone number"
         />

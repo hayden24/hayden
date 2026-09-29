@@ -1,8 +1,10 @@
 # Job Tracker
 
-A mobile-friendly web app for tracking electrical service jobs. Each job
-(work order) has a **Labor** folder for logging hours and a **Material**
-folder for logging materials used, with support for multiple user accounts.
+A mobile-friendly web app for tracking electrical customers and service jobs.
+Each customer keeps their contact info plus the electrical details of their
+property (service/panel, lighting and ballasts, circuits). Each job (work
+order) has a **Labor** folder for logging hours and a **Material** folder for
+logging materials used, with support for multiple user accounts.
 
 ## Features
 
@@ -15,6 +17,20 @@ folder for logging materials used, with support for multiple user accounts.
 - Per-job Labor tab: log date, hours, and a description; running total of hours
 - Per-job Material tab: log description, quantity, and optional unit cost;
   running total material cost
+- **Customers** (menu → Customers): searchable list of customers with name,
+  phone/contact, email, address, and notes. Each customer has tabs for:
+  - **Service** — amperage, voltage, phase, panel brand/model, meter #, notes
+    (add more than one for sub-panels or multiple services)
+  - **Lighting** — area, fixture type, lamp type, ballast brand/model, qty
+  - **Circuits** — what it feeds, which panel it's fed from, circuit #,
+    breaker size, wire size
+  - **Other info** — free-form label/details pairs for anything else
+    (generator, gate code, EV charger...)
+  - **Jobs** — every work order for that customer, plus a shortcut to start a
+    new one pre-filled with their info
+- Work orders can be linked to a saved customer (pick one on the new work order
+  form or when editing a job). Existing jobs are linked automatically by
+  customer name when you run the migration.
 - Timekeeping screen: every hour you've logged, across all jobs, in one list
 - Admins can delete jobs; any user can delete their own labor/material entries
 

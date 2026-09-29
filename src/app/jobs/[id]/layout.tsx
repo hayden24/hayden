@@ -22,7 +22,7 @@ export default async function JobLayout({
 }) {
   const { id } = await params;
 
-  const [job, session, laborAgg, materialEntries, poAgg] = await Promise.all([
+  const [job, session, laborAgg, materialEntries, poAgg, customers] = await Promise.all([
     prisma.job.findUnique({
       where: { id },
       include: { createdBy: { select: { name: true } } },
@@ -34,6 +34,10 @@ export default async function JobLayout({
       select: { quantity: true, unitCost: true },
     }),
     prisma.purchaseOrder.aggregate({ where: { jobId: id }, _sum: { amount: true } }),
+    prisma.customer.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, contact: true, address: true },
+    }),
   ]);
 
   if (!job) notFound();
@@ -64,7 +68,9 @@ export default async function JobLayout({
                 location: job.location,
                 customerName: job.customerName,
                 customerContact: job.customerContact,
+                customerId: job.customerId,
               }}
+              customers={customers}
             />
           </div>
           <StatusSelect jobId={job.id} status={job.status} />

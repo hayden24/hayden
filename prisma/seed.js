@@ -69,13 +69,54 @@ async function main() {
     ],
   };
 
+  const electricalInfoByCustomer = {
+    "Karen Willis": {
+      services: [
+        { location: "Main - garage wall", amperage: "100A", voltage: "120/240V", phase: "Single phase", panelBrand: "Federal Pacific", panelModel: "Stab-Lok", notes: "Replacing with 200A Square D on J-1001" },
+      ],
+      circuits: [
+        { description: "Kitchen counter receptacles", fedFrom: "Main panel", circuitNumber: "7", breakerSize: "20A", wireSize: "12/2 NM" },
+        { description: "Dishwasher", fedFrom: "Main panel", circuitNumber: "9", breakerSize: "15A", wireSize: "14/2 NM" },
+      ],
+    },
+    "Springfield Auto Body": {
+      services: [
+        { location: "Main switchgear - rear of shop", amperage: "400A", voltage: "120/208V", phase: "Three phase", panelBrand: "Siemens", panelModel: "P1" },
+      ],
+      fixtures: [
+        { area: "Shop bays 1-3", fixtureType: "8ft 2-lamp strip", lampType: "F96T12/HO", ballastBrand: "Advance", ballastModel: "VEL-2S110-SC", quantity: "12" },
+        { area: "Office", fixtureType: "2x4 troffer", lampType: "F32T8", ballastBrand: "Philips Advance", ballastModel: "ICN-3P32-SC", quantity: "4" },
+      ],
+      circuits: [
+        { description: "Parking lot poles", fedFrom: "Panel LP-1", circuitNumber: "2/4", breakerSize: "20A 2-pole", wireSize: "#10 THHN", notes: "Photocell on north wall" },
+      ],
+      infoItems: [{ label: "Access", value: "Ask for Mike at front desk; panel room key on hook behind counter" }],
+    },
+  };
+
   let createdCount = 0;
   for (const job of jobs) {
     const existing = await prisma.job.findFirst({ where: { jobNumber: job.jobNumber } });
     if (existing) continue;
 
+    let customer = await prisma.customer.findFirst({ where: { name: job.customerName } });
+    if (!customer) {
+      const info = electricalInfoByCustomer[job.customerName] ?? {};
+      customer = await prisma.customer.create({
+        data: {
+          name: job.customerName,
+          contact: job.customerContact,
+          address: job.location,
+          services: { create: info.services ?? [] },
+          fixtures: { create: info.fixtures ?? [] },
+          circuits: { create: info.circuits ?? [] },
+          infoItems: { create: info.infoItems ?? [] },
+        },
+      });
+    }
+
     const created = await prisma.job.create({
-      data: { ...job, createdById: demoUser.id },
+      data: { ...job, customerId: customer.id, createdById: demoUser.id },
     });
     createdCount += 1;
 
@@ -89,7 +130,7 @@ async function main() {
     }
   }
 
-  console.log(`Seeded ${createdCount} pretend jobs (skipping any that already exist).`);
+  console.log(`Seeded ${createdCount} pretend jobs and their customers (skipping any that already exist).`);
 }
 
 main()
