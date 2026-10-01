@@ -74,6 +74,28 @@ logging materials used, with support for multiple user accounts.
    Open [http://localhost:3000](http://localhost:3000), then register an
    account to get started.
 
+## Putting it online with Railway
+
+[Railway](https://railway.app) runs the app and keeps the database on a saved
+disk (a "volume"), so it's reachable from your phone at job sites.
+
+1. Sign in at railway.app with your GitHub account.
+2. **New Project → Deploy from GitHub repo** and pick this repository. In the
+   service's **Settings → Source**, set the branch to deploy.
+3. Add a **Volume** to the service with mount path `/data` (this is where
+   your customer data lives; without it, data is wiped on every deploy).
+4. Under **Variables**, add:
+   - `DATABASE_URL` = `file:/data/app.db`
+   - `AUTH_SECRET` = a long random string (40+ characters; a password
+     generator works)
+   - `SIGNUP_CODE` = a code you give to employees so they can create accounts
+5. **Settings → Networking → Generate Domain** to get your web address.
+6. Open the address and register. **The first account becomes the
+   owner/admin** and needs no code; everyone after that needs `SIGNUP_CODE`.
+   If `SIGNUP_CODE` isn't set, nobody else can sign up.
+
+Database changes are applied automatically each time the app starts.
+
 ## Production
 
 ```bash

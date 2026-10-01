@@ -16,7 +16,21 @@ export async function register(
     .trim()
     .toLowerCase();
   const password = String(formData.get("password") ?? "");
-  const isAdmin = formData.get("isAdmin") === "on";
+  const signupCode = String(formData.get("signupCode") ?? "").trim();
+
+  // The very first account is the owner and is always an admin. After that, new
+  // accounts need the SIGNUP_CODE you hand out (sign-up is closed if it isn't set).
+  const isFirstUser = (await prisma.user.count()) === 0;
+  if (!isFirstUser) {
+    const expectedCode = process.env.SIGNUP_CODE?.trim();
+    if (!expectedCode) {
+      return { error: "Sign-up is closed. Ask the account owner to set a sign-up code." };
+    }
+    if (signupCode !== expectedCode) {
+      return { error: "That sign-up code isn't right." };
+    }
+  }
+  const isAdmin = isFirstUser || formData.get("isAdmin") === "on";
 
   if (!name || !email || !password) {
     return { error: "All fields are required." };

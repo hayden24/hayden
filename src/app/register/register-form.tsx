@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { register } from "./actions";
 
-export default function RegisterForm() {
+export default function RegisterForm({ isFirstUser }: { isFirstUser: boolean }) {
   const [state, formAction, pending] = useActionState(register, undefined);
 
   return (
@@ -49,10 +49,32 @@ export default function RegisterForm() {
         />
         <p className="mt-1 text-xs text-slate-400">At least 8 characters.</p>
       </div>
-      <label className="flex items-center gap-2 text-sm text-slate-600">
-        <input type="checkbox" name="isAdmin" className="rounded border-slate-300" />
-        I&apos;m an office/admin user (can see and manage all jobs)
-      </label>
+      {isFirstUser ? (
+        <p className="text-xs text-slate-500">
+          This is the first account, so it will be the owner/admin account.
+        </p>
+      ) : (
+        <>
+          <div>
+            <label htmlFor="signupCode" className="block text-sm font-medium text-slate-700">
+              Sign-up code
+            </label>
+            <input
+              id="signupCode"
+              name="signupCode"
+              type="text"
+              required
+              autoComplete="off"
+              className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <p className="mt-1 text-xs text-slate-400">Ask the account owner for this code.</p>
+          </div>
+          <label className="flex items-center gap-2 text-sm text-slate-600">
+            <input type="checkbox" name="isAdmin" className="rounded border-slate-300" />
+            I&apos;m an office/admin user (can see and manage all jobs)
+          </label>
+        </>
+      )}
       {state?.error && (
         <p className="text-sm text-red-600" role="alert">
           {state.error}
