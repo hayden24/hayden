@@ -249,7 +249,7 @@
   .stat .s { font-size: 12.5px; color: var(--faint); font-variant-numeric: tabular-nums; }
   .info-sec { border-top: 1px solid var(--line); padding: 12px 14px; }
   .info-sec .facts { margin-top: 0; }
-  .facts.plain dd { font-family: var(--body); user-select: text; }
+  .facts.plain dd, .fact.plain dd { font-family: var(--body); user-select: text; }
   .age-row {
     display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 12px;
     width: 100%; padding: 9px 0; text-align: left;
@@ -443,6 +443,12 @@
       ["model", "Model #", "SHX878ZD5N"],
       ["spec", "Serial #", "FD 9912 00123"],
       ["size", "Size / capacity", ""]] },
+    HVAC: { label: "Heating & cooling", name: "AC condensing unit", months: 12, fields: [
+      ["brand", "Brand", "Carrier"],
+      ["size", "Size (tons / BTU)", "3 ton"],
+      ["color", "Efficiency / refrigerant", "16 SEER2 · R-454B"],
+      ["model", "Model #", "24ACC636A003"],
+      ["spec", "Serial #", "2526E12345"]] },
     PLUMBING: { label: "Plumbing", name: "Water heater", fields: [
       ["brand", "Brand", "Rheem"],
       ["model", "Model #", ""],
@@ -471,7 +477,7 @@
   // Rough typical service life in years, matched against an item's name.
   const LIFESPANS = [
     [/tankless/, 20], [/water heater|hot water/, 10], [/heat pump/, 15], [/boiler/, 20], [/furnace/, 18],
-    [/air condition|\bac\b|a\/c|condenser/, 15], [/dishwasher/, 10], [/refrigerator|fridge|freezer/, 13],
+    [/air condition|\bac\b|a\/c|condens/, 15], [/dishwasher/, 10], [/refrigerator|fridge|freezer/, 13],
     [/microwave/, 9], [/dryer/, 13], [/washer|washing machine/, 11], [/range|oven|stove|cooktop/, 15],
     [/disposal/, 12], [/sump pump/, 10], [/softener/, 12], [/garage door opener|door opener/, 12],
     [/carbon monoxide|co detector|co alarm/, 7], [/smoke (detector|alarm)/, 10], [/roof/, 22],
@@ -544,6 +550,30 @@
   const thisYear = () => new Date().getFullYear();
   const ageOf = (year) => (year ? Math.max(0, thisYear() - Number(year)) : null);
   const ageText = (a) => (a === null ? "" : a < 1 ? "Under 1 yr" : `${a} ${a === 1 ? "yr" : "yrs"}`);
+  function installDate(item) {
+    return parseDay(item.installedOn) || (item.installedYear ? new Date(Number(item.installedYear), 0, 1) : null);
+  }
+  const ageYears = (item) => {
+    const d = installDate(item);
+    return d ? Math.max(0, (Date.now() - d.getTime()) / (365.25 * 864e5)) : null;
+  };
+  // "3 weeks", "5 months", "7 yrs": precise when there's a date, by year otherwise.
+  function ageLabel(item) {
+    const d = parseDay(item.installedOn);
+    if (!d) return item.installedYear ? ageText(ageOf(item.installedYear)) : "";
+    const now = new Date();
+    const months = (now.getFullYear() - d.getFullYear()) * 12 + now.getMonth() - d.getMonth() - (now.getDate() < d.getDate() ? 1 : 0);
+    if (months < 1) {
+      const days = Math.floor((now.setHours(0, 0, 0, 0) - d.getTime()) / 864e5);
+      if (days <= 0) return "New";
+      if (days < 14) return `${days} ${days === 1 ? "day" : "days"}`;
+      return `${Math.floor(days / 7)} weeks`;
+    }
+    if (months < 24) return `${months} ${months === 1 ? "month" : "months"}`;
+    return ageText(Math.floor(months / 12));
+  }
+  const installedText = (item) =>
+    [item.installedOn ? fmtDay(item.installedOn) : item.installedYear || "", item.installedBy ? `by ${item.installedBy}` : ""].filter(Boolean).join(" ");
   function typicalLife(item) {
     const n = (item.name || "").toLowerCase();
     const hit = LIFESPANS.find(([re]) => re.test(n));
@@ -757,11 +787,11 @@
   function infoCard() {
     const info = state.data.info || {};
     const aged = state.data.items
-      .filter((i) => i.installedYear || i.lastReplaced)
-      .map((i) => ({ id: i.id, name: i.name, age: ageOf(i.installedYear), life: typicalLife(i), item: i }));
+      .filter((i) => installDate(i) || i.lastReplaced)
+      .map((i) => ({ id: i.id, name: i.name, age: ageYears(i), label: ageLabel(i), life: typicalLife(i), item: i }));
     if (info.roofYear) {
       const [label, life] = ROOFS[info.roofMaterial] || ROOFS.asphalt;
-      aged.push({ roof: true, name: "Roof", age: ageOf(info.roofYear), life, label, year: info.roofYear });
+      aged.push({ roof: true, name: "Roof", age: ageOf(info.roofYear), label: ageText(ageOf(info.roofYear)), life, material: label, year: info.roofYear });
     }
     aged.forEach((a) => (a.frac = a.age !== null && a.life ? a.age / a.life : null));
     aged.sort((a, b) => (b.frac ?? -1) - (a.frac ?? -1) || (b.age ?? -1) - (a.age ?? -1));
@@ -779,23 +809,26 @@
 
     if (!hasAnything) {
       return `<section class="info" aria-labelledby="info-h">
-        <div class="info-head"><h2 id="info-h">Home info</h2>
-          <button class="btn btn-primary" data-action="edit-info">Add</button></div>
-        <p class="info-intro">Year built, roof age, where the water shutoff is, and who to call. Add a year installed to appliances and their ages show up here too.</p>
+        <div class="info-head"><h2 id="info-h">Home info</h2></div>
+        <p class="info-intro">Year built, roof age, where the water shutoff is, and who to call. Equipment you add with an install date shows its age here too.</p>
+        <div class="starters" style="margin:0 14px 14px">
+          <button class="btn btn-primary" data-action="edit-info">Add house details</button>
+          <button class="btn btn-quiet" data-action="new-item" data-cat="HVAC">${icon("plus", 2.2)} Add equipment</button>
+        </div>
       </section>`;
     }
 
     const ageRow = (a) => {
       const aging = a.frac !== null && a.frac >= 0.8;
       const meta = a.roof
-        ? `Installed ${a.year} · ${a.label}`
-        : [a.item.installedYear ? `Installed ${a.item.installedYear}` : "", a.item.lastReplaced ? `Last maintained ${fmtDay(a.item.lastReplaced)}` : "", warrantyText(a.item)].filter(Boolean).join(" · ");
+        ? `Installed ${a.year} · ${a.material}`
+        : [installedText(a.item) ? `Installed ${installedText(a.item)}` : "", a.item.lastReplaced ? `Last maintained ${fmtDay(a.item.lastReplaced)}` : "", warrantyText(a.item)].filter(Boolean).join(" · ");
       const lifeNote = a.frac === null ? "" : a.frac >= 1 ? "Past typical life" : aging ? "Nearing typical life" : `Typical life ~${a.life} yrs`;
       return `<button class="age-row ${aging ? "aging" : ""}" ${a.roof ? 'data-action="edit-info"' : `data-action="open-item" data-id="${esc(a.id)}"`}>
         <span class="age-name">${esc(a.name)}</span>
-        <span class="age-val">${esc(a.age !== null ? ageText(a.age) : "")}</span>
+        <span class="age-val">${esc(a.label || "")}</span>
         ${meta ? `<span class="age-meta">${esc(meta)}</span>` : ""}
-        ${a.frac !== null ? `<span class="life"><span class="meter" role="img" aria-label="${a.age} of about ${a.life} years"><span style="width:${Math.min(100, Math.round(a.frac * 100))}%"></span></span><small>${lifeNote}${a.frac >= 0.8 ? ` (~${a.life} yrs)` : ""}</small></span>` : ""}
+        ${a.frac !== null ? `<span class="life"><span class="meter" role="img" aria-label="${a.label} of about ${a.life} years"><span style="width:${Math.min(100, Math.round(a.frac * 100))}%"></span></span><small>${lifeNote}${a.frac >= 0.8 ? ` (~${a.life} yrs)` : ""}</small></span>` : ""}
       </button>`;
     };
 
@@ -810,7 +843,10 @@
         <button class="btn btn-quiet" data-action="edit-info">Edit</button></div>
       ${stats.length ? `<div class="stats">${stats.map(([k, v, sub]) =>
         `<div class="stat"><span class="k">${k}</span><span class="v">${esc(v)}</span>${sub ? `<span class="s">${esc(sub)}</span>` : ""}</div>`).join("")}</div>` : `<div style="height:12px"></div>`}
-      ${shownAges.length ? `<div class="info-sec"><h3 class="section-label">Ages &amp; upkeep<span>${aged.length}</span></h3>${shownAges.map(ageRow).join("")}</div>` : ""}
+      <div class="info-sec"><h3 class="section-label">Ages &amp; upkeep<span>${aged.length || ""}</span></h3>
+        ${shownAges.map(ageRow).join("")}
+        <button class="btn btn-quiet" data-action="new-item" data-cat="HVAC" style="margin-top:8px;padding:6px 12px;font-size:13px">${icon("plus", 2.2)} Add equipment</button>
+      </div>
       ${open && places.length ? `<div class="info-sec"><h3 class="section-label">Where things are</h3>${factList(places, false, true)}</div>` : ""}
       ${open && contacts.length ? `<div class="info-sec"><h3 class="section-label">Who to call</h3>${factList(contacts.map((c) => [[c.role, c.name].filter(Boolean).join(" · "), c.phone || ""]), true)}</div>` : ""}
       ${open && info.notes ? `<div class="info-sec"><h3 class="section-label">Good to know</h3><p class="notes" style="margin:0">${esc(info.notes)}</p></div>` : ""}
@@ -931,6 +967,7 @@
             <button class="btn btn-quiet" data-action="new-item" data-cat="PAINT">A paint color</button>
             <button class="btn btn-quiet" data-action="new-item" data-cat="LIGHT_BULB">Light bulbs in a room</button>
             <button class="btn btn-quiet" data-action="new-item" data-cat="APPLIANCE">An appliance model #</button>
+            <button class="btn btn-quiet" data-action="new-item" data-cat="HVAC">Heating &amp; cooling equipment</button>
           </div>
           <div class="examples" aria-hidden="true">
             <div class="example-tag">Example of how it looks</div>
@@ -951,7 +988,7 @@
       if (state.cat && i.category !== state.cat) return false;
       if (!q) return true;
       const label = (CATEGORIES[i.category] || CATEGORIES.OTHER).label.toLowerCase();
-      const hay = [i.name, i.room, i.whereToBuy, i.notes, ...DETAIL_KEYS.map((k) => i[k]), label].filter(Boolean).join(" ").toLowerCase();
+      const hay = [i.name, i.room, i.whereToBuy, i.notes, i.installedBy, ...DETAIL_KEYS.map((k) => i[k]), label].filter(Boolean).join(" ").toLowerCase();
       return q.split(/\s+/).every((w) => hay.includes(w) || label.startsWith(w.replace(/s$/, "")));
     });
 
@@ -1086,20 +1123,23 @@
     const item = state.data.items.find((i) => i.id === id);
     if (!item) return;
     const cat = CATEGORIES[item.category] || CATEGORIES.OTHER;
-    const facts = cat.fields.filter(([k]) => item[k]).map(([k, label]) => [label, item[k]]);
+    const facts = cat.fields.filter(([k]) => item[k]).map(([k, label]) => [label, item[k], true]);
     if (item.whereToBuy) facts.push(["Where to buy", item.whereToBuy]);
-    if (item.installedYear) {
+    if (installDate(item)) {
       const life = typicalLife(item);
-      facts.push(["Age", `${ageText(ageOf(item.installedYear))} (since ${item.installedYear})${life ? ` · typical life ~${life} yrs` : ""}`]);
+      facts.push(["Installed", item.installedOn ? fmtDay(item.installedOn) : String(item.installedYear)]);
+      facts.push(["Age", `${ageLabel(item)}${life ? ` · typical life ~${life} yrs` : ""}`]);
     }
+    if (item.installedBy) facts.push(["Installed by", item.installedBy]);
+    if (item.installCost) facts.push(["Cost", "$" + Number(item.installCost).toLocaleString()]);
     if (item.warrantyUntil) facts.push(["Warranty", warrantyText(item).replace(/^Under warranty until/, "Until").replace(/^Warranty ended/, "Ended")]);
     const due = nextDue(item);
     const overdue = isDue(item);
     openSheet(`
       ${sheetTop([cat.label.replace(/s$/, ""), item.room].filter(Boolean).join(" · "), item.name)}
       ${item.photo ? `<img class="photo" src="${photoUrl(item.photo)}" alt="Photo of ${esc(item.name)}">` : ""}
-      ${facts.length ? `<dl class="facts">${facts.map(([l, v]) => `
-        <div class="fact"><dt>${esc(l)}</dt><dd>${esc(v)}</dd><button class="copy" data-action="copy" data-value="${esc(v)}">Copy</button></div>`).join("")}</dl>` : ""}
+      ${facts.length ? `<dl class="facts">${facts.map(([l, v, copy]) => `
+        <div class="fact${copy ? "" : " plain"}"><dt>${esc(l)}</dt><dd>${esc(v)}</dd>${copy ? `<button class="copy" data-action="copy" data-value="${esc(v)}">Copy</button>` : ""}</div>`).join("")}</dl>` : ""}
       ${item.notes ? `<p class="notes">${esc(item.notes)}</p>` : ""}
       ${item.lastReplaced || due ? `
         <div class="reminder ${overdue ? "due" : ""}">
@@ -1139,12 +1179,23 @@
             <input id="f-where" name="whereToBuy" maxlength="200" value="${esc(values.whereToBuy)}" placeholder="Home Depot, aisle 12"></div>
         </div>
         <div class="box">
-          <span class="legend">Age &amp; upkeep (optional)</span>
+          <span class="legend">Installation (optional)</span>
           <div class="grid2">
-            <div class="field"><label for="f-year">Year installed or bought</label>
-              <input id="f-year" name="installedYear" type="number" min="1900" max="${thisYear() + 1}" step="1" inputmode="numeric" value="${esc(values.installedYear)}" placeholder="${thisYear() - 5}"></div>
+            <div class="field"><label for="f-installed">Installed or bought on</label>
+              <input id="f-installed" name="installedOn" type="date" max="${todayStr()}" value="${esc(values.installedOn)}"></div>
+            <div class="field"><label for="f-year">Or just the year, if you don't know the date</label>
+              <input id="f-year" name="installedYear" type="number" min="1900" max="${thisYear() + 1}" step="1" inputmode="numeric" value="${values.installedOn ? "" : esc(values.installedYear)}" placeholder="${thisYear() - 5}"></div>
+            <div class="field"><label for="f-by">Installed by</label>
+              <input id="f-by" name="installedBy" maxlength="120" value="${esc(values.installedBy)}" placeholder="Company or person"></div>
+            <div class="field"><label for="f-cost">Cost ($)</label>
+              <input id="f-cost" name="installCost" type="number" min="0" step="any" inputmode="decimal" value="${esc(values.installCost)}" placeholder="6500"></div>
             <div class="field"><label for="f-warranty">Warranty until</label>
               <input id="f-warranty" name="warrantyUntil" type="date" value="${esc(values.warrantyUntil)}"></div>
+          </div>
+        </div>
+        <div class="box">
+          <span class="legend">Upkeep (optional)</span>
+          <div class="grid2">
             <div class="field"><label for="f-last">Last maintained or replaced</label>
               <input id="f-last" name="lastReplaced" type="date" value="${esc(values.lastReplaced)}"></div>
             <div class="field"><label for="f-months">Every how many months</label>
@@ -1202,13 +1253,19 @@
         if (monthsN !== null && (!Number.isInteger(monthsN) || monthsN < 1)) {
           err.textContent = "Use a whole number of months, like 3."; err.hidden = false; return;
         }
+        const installedOn = String(fd.get("installedOn") || "").trim() || null;
         const yearStr = String(fd.get("installedYear") || "").trim();
-        const installedYear = yearStr ? Number(yearStr) : null;
+        const installedYear = installedOn ? Number(installedOn.slice(0, 4)) : yearStr ? Number(yearStr) : null;
+        const costStr = String(fd.get("installCost") || "").trim();
+        const installCost = costStr ? Number(costStr) : null;
+        if (installCost !== null && !(installCost >= 0)) {
+          err.textContent = "Cost should be a number, like 6500."; err.hidden = false; return;
+        }
         if (installedYear !== null && !(Number.isInteger(installedYear) && installedYear >= 1900 && installedYear <= thisYear() + 1)) {
           err.textContent = "Year installed should look like 2018."; err.hidden = false; return;
         }
-        const data = { category: cat, name, replaceEveryMonths: monthsN, installedYear };
-        ["room", "whereToBuy", "notes", "lastReplaced", "warrantyUntil", ...DETAIL_KEYS].forEach((k) => {
+        const data = { category: cat, name, replaceEveryMonths: monthsN, installedYear, installedOn, installCost };
+        ["room", "whereToBuy", "notes", "lastReplaced", "warrantyUntil", "installedBy", ...DETAIL_KEYS].forEach((k) => {
           data[k] = String(fd.get(k) || "").trim() || null;
         });
         const btn = form.querySelector('[type="submit"]');

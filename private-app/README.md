@@ -9,6 +9,8 @@ https://claude.ai/artifact/3sU4LP1P7HgVNuTw4EEUc1
   and service contacts
 - **My home**: paint colors, filter sizes, light bulbs, model numbers, with
   photos and replacement reminders
+- **Installation records** on any item: install date (or just the year),
+  installer, cost, and warranty; a Heating & cooling category for HVAC gear
 - **Projects**: a log of work done on the house (date, where, cost, photo)
 - **Tips & tricks**: notes about this house
 - **To fix**: a running to-do list with priorities
